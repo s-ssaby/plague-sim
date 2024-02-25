@@ -1,4 +1,4 @@
-use std::{error::Error, ops::{Add, Sub}};
+use std::{ops::Add, slice::Iter};
 
 use crate::transportation::Port;
 
@@ -8,6 +8,22 @@ pub struct Region {
     name: String,
     population: Population,
     ports: Vec<Port>
+}
+
+impl Region {
+    pub fn new(name: String, initial_pop: u32, ports: Vec<Port>) -> Self {
+        Region {name, population: Population::new(initial_pop), ports}
+    }
+
+    pub fn close_ports(&mut self) {
+        for port in self.ports.iter_mut() {
+            port.close_port();
+        }
+    }
+
+    pub fn get_ports(&self) -> &Vec<Port> {
+        &self.ports
+    }
 }
 
 
@@ -32,6 +48,10 @@ impl Add for Population {
 }
 
 impl Population {
+    /* Creates a population of healthy people */
+    pub fn new (initial_pop: u32) -> Self{
+        Self {alive: initial_pop, dead: 0, recovered: 0}
+    }
     // Transports a subpopulation of people out of this population
     // Returns resulting population after transportation
     // Errors if group cannot be extracted from this population

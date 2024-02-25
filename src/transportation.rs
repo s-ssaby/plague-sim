@@ -1,41 +1,31 @@
+use std::cell::RefCell;
+
+
+
 /** Represents a specific site of travel, such as an airport/seaport */
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Port {
     // maximum amount of transportation
     capacity: u32,
     // whether port is operating or not
-    closed: bool,
-    // what ports it can send people to
-    connections: Vec<Port>
+    closed: RefCell<bool>
 }
 
-/** Represents a graph of port connections */
-pub struct PortGraph {
-    ports: Vec<Port>,
-    connections: Vec<PortConnection>
-}
-
-impl PortGraph {
-    fn new() -> Self{
-        PortGraph {ports: vec![], connections: vec![]}
+impl Port {
+    /** Creates a new open port capable of transporting specified capacity */
+    pub fn new(capacity: u32) -> Self {
+        Self {capacity, closed: RefCell::new(false)}
     }
 
-    fn add_port(&mut self, port: Port) {
-        self.ports.push(port);
+    pub fn close_port(&self) {
+        self.closed.replace(false);
     }
 
-    fn add_connection(&mut self, start_port: Port, end_port: Port) {
-        self.connections.push(PortConnection{start: start_port, end: end_port});
+    pub fn is_closed(&self) -> bool {
+        self.closed.borrow().to_owned()
     }
 
-    // gets possible destination ports of a port in graph
-    fn get_dest_ports(&self) {
-
+    pub fn get_capacity(&self) -> u32 {
+        self.capacity
     }
-
-}
-
-struct PortConnection {
-    start: Port,
-    end: Port
 }
