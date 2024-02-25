@@ -37,20 +37,15 @@ impl <'a> PortGraph<'a> {
     }
 
     fn get_node(&'a self, person: &Port) -> Option<&PortNode> {
-        for p in self.ports.iter() {
-            if ptr::eq(person, p.port) {
-                return Some(p);
-            }
-        }
-        None
+        self.ports.iter().find(|&p| ptr::eq(person, p.port))
     }
 
     // gets possible destination ports of a port in graph
     pub fn get_dest_ports(&'a self, port: &Port) -> Vec<&Port> {
         let mut dests: Vec<&Port> = vec![];
         let node = self.get_node(port);
-        if node.is_some() {
-            for p in node.unwrap().dests.borrow().iter() {
+        if let Some(node) = node {
+            for p in node.dests.borrow().iter() {
                 dests.push(p.port);
             }
         }
