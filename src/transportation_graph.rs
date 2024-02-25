@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::{cell::RefCell, ptr, vec};
 
 use crate::transportation::Port;
@@ -84,14 +86,8 @@ struct PortConnection<'a> {
 
 #[cfg(test)]
 mod tests {
-    use std::{borrow::Borrow};
 
     use super::*;
-
-    fn compare_cell(cell: &RefCell<String>, name: &str) -> bool {
-        let cell_name = cell.borrow();
-        cell_name.as_str() == name
-    }
 
     #[test]
     fn graph_add_ports() {

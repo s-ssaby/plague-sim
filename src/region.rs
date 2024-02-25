@@ -1,4 +1,6 @@
-use std::{ops::Add, slice::Iter};
+#![allow(dead_code)]
+
+use std::ops::Add;
 
 use crate::transportation::Port;
 
