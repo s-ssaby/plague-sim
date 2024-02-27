@@ -4,27 +4,25 @@
 pub struct Pathogen {
     pub name: String,
     // probability of transmission when interacting with another person
-    infectivity: f32,
+    pub infectivity: f32,
     // probability of dying each day
-    lethality: f32,
+    pub lethality: f32,
     // probability of recovering each day
-    recovery_rate: f32   
+    pub recovery_rate: f32   
 }
 
 impl Pathogen {
-    pub fn new(name: String, infectivity: f32, lethality: f32, recovery_rate: f32) -> Self {
-        Self {name, infectivity, lethality, recovery_rate}
-    }
+    pub fn new(name: String, infectivity: f32, lethality: f32, recovery_rate: f32) -> Result<Self, String> {
+        if infectivity < 0.0 || infectivity > 1.0 {
+            return Err(format!("Infectivity must be between 0 and 1, not {}", infectivity));
+        }
+        if lethality < 0.0 || lethality > 1.0 {
+            return Err(format!("Lethality must be between 0 and 1, not {}", lethality));
+        }
+        if recovery_rate < 0.0 || recovery_rate > 1.0 {
+            return Err(format!("Recovery rate must be between 0 and 1, not {}", recovery_rate));
+        }
 
-    pub fn get_infectivity(&self) {
-        self.infectivity;
-    }
-
-    pub fn get_lethality(&self) {
-        self.lethality;
-    }
-
-    pub fn get_recovery_rate(&self) {
-        self.recovery_rate;
+        Ok(Self {name, infectivity, lethality, recovery_rate})
     }
 }
