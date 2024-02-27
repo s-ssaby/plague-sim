@@ -1,6 +1,7 @@
 mod region;
 mod transportation;
 mod transportation_graph;
+mod pathogen;
 
 #[cfg(test)]
 mod tests {
