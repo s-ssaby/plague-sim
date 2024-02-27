@@ -32,7 +32,8 @@ impl Region {
 #[derive(Debug, Clone, Default, PartialEq)]
 /** Represents any group of people */
 struct Population {
-    alive: u32,
+    healthy: u32,
+    infected: u32,
     dead: u32,
     recovered: u32
 }
@@ -41,10 +42,11 @@ impl Add for Population {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self {
-        let tot_alive = self.alive + rhs.alive;
+        let tot_healthy = self.healthy + rhs.healthy;
+        let tot_infected = self.infected + rhs.infected;
         let tot_dead = self.dead + rhs.dead;
         let tot_recovered = self.recovered + rhs.recovered;
-        Population { alive: tot_alive, dead: tot_dead, recovered: tot_recovered }
+        Population { healthy: tot_healthy, infected: tot_infected, dead: tot_dead, recovered: tot_recovered }
     }
 
 }
@@ -52,23 +54,27 @@ impl Add for Population {
 impl Population {
     /* Creates a population of healthy people */
     pub fn new (initial_pop: u32) -> Self{
-        Self {alive: initial_pop, dead: 0, recovered: 0}
+        Self {healthy: initial_pop, dead: 0, recovered: 0, infected: 0}
     }
+
     // Transports a subpopulation of people out of this population
     // Returns resulting population after transportation
     // Errors if group cannot be extracted from this population
     fn emigrate(self, group: Self) -> Result<Population, String> {
-        if group.alive > self.alive {
-            Err(format!("Cannot remove {} alive people from {} alive people", group.alive, self.alive))
+        if group.healthy > self.healthy {
+            Err(format!("Cannot remove {} healthy people from {} healthy people", group.healthy, self.healthy))
         } else if group.dead > self.dead {
             Err(format!("Cannot remove {} dead people from {} dead people", group.dead, self.dead))
         } else if group.recovered > self.recovered {
             Err(format!("Cannot remove {} recovered people from {} recovered people", group.recovered, self.recovered))
+        } else if group.infected > self.infected {
+            Err(format!("Cannot remove {} infected people from {} infected people", group.infected, self.infected))
         } else {
-            let remaining_alive = self.alive - group.alive;
+            let remaining_healthy = self.healthy - group.healthy;
             let remaining_dead = self.dead - group.dead;
             let remaining_recovered = self.recovered - group.recovered;
-            Ok(Population { alive: remaining_alive, dead: remaining_dead, recovered: remaining_recovered })
+            let remaining_infected = self.infected - group.infected;
+            Ok(Population { healthy: remaining_healthy, infected: remaining_infected, dead: remaining_dead, recovered: remaining_recovered })
         }
     }
 }

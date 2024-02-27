@@ -15,4 +15,16 @@ impl Pathogen {
     pub fn new(name: String, infectivity: f32, lethality: f32, recovery_rate: f32) -> Self {
         Self {name, infectivity, lethality, recovery_rate}
     }
+
+    pub fn get_infectivity(&self) {
+        self.infectivity;
+    }
+
+    pub fn get_lethality(&self) {
+        self.lethality;
+    }
+
+    pub fn get_recovery_rate(&self) {
+        self.recovery_rate;
+    }
 }
