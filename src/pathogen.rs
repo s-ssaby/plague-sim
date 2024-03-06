@@ -4,15 +4,15 @@
 pub struct Pathogen {
     pub name: String,
     // probability of transmission when interacting with another person
-    pub infectivity: f32,
+    pub infectivity: f64,
     // probability of dying each day
-    pub lethality: f32,
+    pub lethality: f64,
     // probability of recovering each day
-    pub recovery_rate: f32   
+    pub recovery_rate: f64   
 }
 
 impl Pathogen {
-    pub fn new(name: String, infectivity: f32, lethality: f32, recovery_rate: f32) -> Result<Self, String> {
+    pub fn new(name: String, infectivity: f64, lethality: f64, recovery_rate: f64) -> Result<Self, String> {
         if infectivity < 0.0 || infectivity > 1.0 {
             return Err(format!("Infectivity must be between 0 and 1, not {}", infectivity));
         }
