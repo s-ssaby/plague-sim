@@ -22,6 +22,10 @@ impl Pathogen {
         if recovery_rate < 0.0 || recovery_rate > 1.0 {
             return Err(format!("Recovery rate must be between 0 and 1, not {}", recovery_rate));
         }
+        let sum = recovery_rate + infectivity;
+        if sum > 1.0 {
+            return Err(format!("Sum of recovery rate and lethality rate cannot exceed 1, sum is {}", sum));
+        }
 
         Ok(Self {name, infectivity, lethality, recovery_rate})
     }
