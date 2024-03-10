@@ -18,7 +18,7 @@ impl Region {
     }
 
     pub fn close_ports(&mut self) {
-        for port in self.ports.iter_mut() {
+        for port in &mut self.ports {
             port.close_port();
         }
     }

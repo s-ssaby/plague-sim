@@ -13,18 +13,18 @@ pub struct Pathogen {
 
 impl Pathogen {
     pub fn new(name: String, infectivity: f64, lethality: f64, recovery_rate: f64) -> Result<Self, String> {
-        if infectivity < 0.0 || infectivity > 1.0 {
-            return Err(format!("Infectivity must be between 0 and 1, not {}", infectivity));
+        if !(0.0..=1.0).contains(&infectivity) {
+            return Err(format!("Infectivity must be between 0 and 1, not {infectivity}"));
         }
-        if lethality < 0.0 || lethality > 1.0 {
-            return Err(format!("Lethality must be between 0 and 1, not {}", lethality));
+        if !(0.0..=1.0).contains(&lethality) {
+            return Err(format!("Lethality must be between 0 and 1, not {lethality}"));
         }
-        if recovery_rate < 0.0 || recovery_rate > 1.0 {
-            return Err(format!("Recovery rate must be between 0 and 1, not {}", recovery_rate));
+        if !(0.0..=1.0).contains(&recovery_rate) {
+            return Err(format!("Recovery rate must be between 0 and 1, not {recovery_rate}"));
         }
         let sum = recovery_rate + infectivity;
         if sum > 1.0 {
-            return Err(format!("Sum of recovery rate and lethality rate cannot exceed 1, sum is {}", sum));
+            return Err(format!("Sum of recovery rate and lethality rate cannot exceed 1, sum is {sum}"));
         }
 
         Ok(Self {name, infectivity, lethality, recovery_rate})

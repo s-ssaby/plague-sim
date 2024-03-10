@@ -55,7 +55,7 @@ impl <'a> PortGraph<'a> {
     pub fn get_open_dest_ports(&'a self, port: &Port) -> Vec<&Port> {
         let dests = self.get_dest_ports(port);
         let mut open_dests: Vec<&Port> = vec![];
-        for dest in dests.iter() {
+        for dest in &dests {
             if !dest.is_closed() {
                 open_dests.push(dest);
             }
