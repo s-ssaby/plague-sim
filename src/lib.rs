@@ -1,7 +1,10 @@
+#![warn(clippy::arithmetic_side_effects, clippy::default_numeric_fallback)]
+
 mod region;
 mod transportation;
 mod transportation_graph;
 mod pathogen;
+
 
 #[cfg(test)]
 mod tests {
