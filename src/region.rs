@@ -23,7 +23,7 @@ impl Region {
         }
     }
 
-    pub fn get_ports(&self) -> &Vec<Port> {
+    pub fn get_ports(&self) -> &[Port] {
         &self.ports
     }
 }
