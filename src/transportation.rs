@@ -2,6 +2,8 @@
 
 use std::cell::RefCell;
 
+use crate::region::RegionID;
+
 
 
 /** Represents a specific site of travel, such as an airport/seaport */
@@ -10,13 +12,15 @@ pub struct Port {
     // maximum amount of transportation
     capacity: u32,
     // whether port is operating or not
-    closed: RefCell<bool>
+    closed: RefCell<bool>,
+    // ID of region this port is in
+    pub region: Option<RegionID>
 }
 
 impl Port {
     /** Creates a new open port capable of transporting specified capacity */
     pub fn new(capacity: u32) -> Self {
-        Self {capacity, closed: RefCell::new(false)}
+        Self {capacity, closed: RefCell::new(false), region: None }
     }
 
     pub fn close_port(&self) {

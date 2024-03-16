@@ -7,8 +7,8 @@ use crate::transportation::Port;
 // Responsible for assigning a unique ID to every region
 static CURRENT_REGION_ID: AtomicU32 = AtomicU32::new(0);
 
-#[derive(Debug, Clone, PartialEq)]
-struct RegionID(u32);
+#[derive(Debug, Clone, PartialEq, Copy)]
+pub struct RegionID(u32);
 
 impl RegionID {
     fn new() -> Self{
@@ -27,8 +27,12 @@ pub struct Region {
 }
 
 impl Region {
-    pub fn new(name: String, initial_pop: u32, ports: Vec<Port>) -> Self {
-        Region {name, population: Population::new(initial_pop), ports, id: RegionID::new() }
+    pub fn new(name: String, initial_pop: u32, mut ports: Vec<Port>) -> Self {
+        let id = RegionID::new();
+        for port in &mut ports {
+            port.region = Some(id);
+        }
+        Region {name, population: Population::new(initial_pop), ports, id }
     }
 
     pub fn close_ports(&mut self) {
