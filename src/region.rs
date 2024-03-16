@@ -1,12 +1,26 @@
 #![allow(dead_code)]
 
-use std::ops::Add;
+use std::{ops::Add, sync::atomic::AtomicU32};
 
 use crate::transportation::Port;
 
+// Responsible for assigning a unique ID to every region
+static CURRENT_REGION_ID: AtomicU32 = AtomicU32::new(0);
+
+#[derive(Debug, Clone, PartialEq)]
+struct RegionID(u32);
+
+impl RegionID {
+    fn new() -> Self{
+        let val = CURRENT_REGION_ID.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        RegionID(val)
+    }
+}
+
 /** Represents a region of the world with a human population */
-#[derive(Debug, Clone, Default, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Region {
+    id: RegionID,
     name: String,
     population: Population,
     ports: Vec<Port>
@@ -14,7 +28,7 @@ pub struct Region {
 
 impl Region {
     pub fn new(name: String, initial_pop: u32, ports: Vec<Port>) -> Self {
-        Region {name, population: Population::new(initial_pop), ports}
+        Region {name, population: Population::new(initial_pop), ports, id: RegionID::new() }
     }
 
     pub fn close_ports(&mut self) {
