@@ -1,10 +1,11 @@
-use std::{cell::RefCell, collections::HashMap};
+use std::collections::HashMap;
 
 use crate::{population::Population, region::{Region, RegionID}, transportation_graph::PortGraph};
 
 
 // Controls transportation interactions between the regions it possesses
 /** Assumes that every port in provided port graph belongs to a region */
+/** Once regions added, cannot add more or take away */
 struct RegionTransportationMediator <'a> {
     regions: HashMap<RegionID, Region>,
     port_graph: &'a PortGraph<'a>,
@@ -12,13 +13,12 @@ struct RegionTransportationMediator <'a> {
 }
 
 impl<'med> RegionTransportationMediator<'med> {
-    fn new(port_graph: &'med PortGraph<'med>) -> Self {
-        Self { regions: HashMap::new(), port_graph, ongoing_transport: vec![]}
-    }
-
-    fn add_region(&mut self, region: Region) {
-        let id = region.id;
-        self.regions.insert(id, region);
+    fn new(port_graph: &'med PortGraph<'med>, regions: Vec<Region>) -> Self {
+        let mut region_map = HashMap::new();
+        for region in regions {
+            region_map.insert(region.id, region);
+        }
+        Self { regions: region_map, port_graph, ongoing_transport: vec![]}
     }
 
     // create interactions between regions for each region
@@ -26,7 +26,7 @@ impl<'med> RegionTransportationMediator<'med> {
     fn update(&'med mut self) {
         // process jobs
         self.ongoing_transport.retain_mut(|job| {
-            if (job.time == 0) {
+            if job.time == 0 {
                 // update end region
                 let end_region = self.regions.get_mut(&job.end_region);
                 match end_region {
@@ -44,7 +44,7 @@ impl<'med> RegionTransportationMediator<'med> {
 
         let mut all_new_jobs: Vec<TransportJob> = vec![];
         // generate new jobs
-        for (_region_id, region) in &mut self.regions {
+        for region in self.regions.values_mut() {
             let new_jobs = Self::calculate_transport_jobs(self.port_graph, region);
             all_new_jobs.extend(new_jobs);
         }
@@ -93,14 +93,3 @@ struct TransportJob {
     time: u32
 }
 
-impl TransportJob {
-    // new job but day less
-    // Errors if job already finished
-    pub fn tick(&self) -> Result<Self, String> {
-        if self.time == 0 {
-            Err("Unable to tick finished job, time already 0".to_owned())
-        } else {
-            Ok(TransportJob {start_region: self.start_region, end_region: self.end_region, population: self.population, time: self.time - 1 })
-        }
-    }
-}
