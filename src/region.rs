@@ -2,7 +2,7 @@
 
 use std::sync::atomic::AtomicU32;
 
-use crate::{population::Population, transportation::Port};
+use crate::{population::Population, transportation::{Port, PortID}};
 
 // Responsible for assigning a unique ID to every region
 static CURRENT_REGION_ID: AtomicU32 = AtomicU32::new(0);
@@ -35,6 +35,11 @@ impl Region {
         Region {name, population: Population::new(initial_pop), ports, id }
     }
 
+    /** Retrieves reference to port if it exists in Region */
+    pub fn get_port(&self, id: PortID) -> Option<&Port> {
+        self.ports.iter().find(|port| port.id == id)
+    }
+
     pub fn close_ports(&mut self) {
         for port in &mut self.ports {
             port.close_port();
@@ -48,6 +53,19 @@ mod tests {
     use crate::transportation::{Port, PortID};
 
     use super::Region;
+
+    #[test]
+    fn region_find_port_test() {
+        let small_port = Port::new(PortID::new(0), 100);
+        let big_port = Port::new(PortID::new(1), 1000);
+        let huge_port = Port::new(PortID::new(2), 10_000_000);
+
+        let country = Region::new("Super".to_owned(), 100, vec![small_port, big_port]);
+        assert!(country.get_port(PortID::new(0)).is_some());
+        assert!(country.get_port(PortID::new(1)).is_some());
+        assert!(country.get_port(PortID::new(2)).is_none());
+        assert!(country.get_port(PortID::new(3)).is_none());
+    }
 
     #[test]
     fn region_construction_test() {
