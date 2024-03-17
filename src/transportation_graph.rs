@@ -82,6 +82,8 @@ struct PortConnection<'a> {
 #[cfg(test)]
 mod tests {
 
+    use crate::transportation::PortID;
+
     use super::*;
 
     #[test]
@@ -89,13 +91,13 @@ mod tests {
         let mut american_ports: Vec<Port> = vec![];
         let mut europe_ports: Vec<Port> = vec![];
         
-        let amer1 = Port::new(150);
-        let amer2 = Port::new(170);
+        let amer1 = Port::new(PortID::new(0), 150);
+        let amer2 = Port::new(PortID::new(1), 170);
 
-        let eu1 = Port::new(190);
-        let eu2 = Port::new(300);
-        let eu3 = Port::new(500);
-        let eu4 = Port::new(800);
+        let eu1 = Port::new(PortID::new(2), 190);
+        let eu2 = Port::new(PortID::new(3), 300);
+        let eu3 = Port::new(PortID::new(4), 500);
+        let eu4 = Port::new(PortID::new(5), 800);
 
         american_ports.push(amer1);
         american_ports.push(amer2);

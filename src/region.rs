@@ -45,15 +45,15 @@ impl Region {
 
 #[cfg(test)]
 mod tests {
-    use crate::transportation::Port;
+    use crate::transportation::{Port, PortID};
 
     use super::Region;
 
     #[test]
     fn region_construction_test() {
-        let small_port = Port::new(100);
-        let big_port = Port::new(1000);
-        let huge_port = Port::new(10_000_000);
+        let small_port = Port::new(PortID::new(0), 100);
+        let big_port = Port::new(PortID::new(1), 1000);
+        let huge_port = Port::new(PortID::new(2), 10_000_000);
 
         let country = Region::new("Super".to_owned(), 100, vec![small_port, big_port]);
         let big_country = Region::new("Mega".to_owned(), 1_000_000, vec![huge_port]);

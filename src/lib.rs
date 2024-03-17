@@ -10,6 +10,8 @@ mod region_transportation_mediator;
 
 #[cfg(test)]
 mod tests {
+    use crate::transportation::PortID;
+
     use self::{region::Region, transportation::Port, transportation_graph::PortGraph};
 
     use super::*;
@@ -18,16 +20,16 @@ mod tests {
     fn it_works() {
         // create countries
         let mut us_ports = vec![];
-        let us_port1 = Port::new(100);
-        let us_port2 = Port::new(200);
+        let us_port1 = Port::new(PortID::new(0), 100);
+        let us_port2 = Port::new(PortID::new(1), 200);
         us_ports.push(us_port1);
         us_ports.push(us_port2);
         let us = Region::new("United States".to_string(), 1000, us_ports);
 
         let mut china_ports = vec![];
-        let china_port1 = Port::new(100);
-        let china_port2 = Port::new(200);
-        let china_port3 = Port::new(200);
+        let china_port1 = Port::new(PortID::new(2), 100);
+        let china_port2 = Port::new(PortID::new(3), 200);
+        let china_port3 = Port::new(PortID::new(4), 200);
         china_ports.push(china_port1);
         china_ports.push(china_port2);
         china_ports.push(china_port3);
