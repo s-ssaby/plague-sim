@@ -9,8 +9,8 @@ use crate::region::RegionID;
 /** Represents a specific site of travel, such as an airport/seaport */
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Port {
-    // maximum amount of transportation
-    capacity: u32,
+    // maximum amount of transportation 
+    pub capacity: u32,
     // whether port is operating or not
     closed: RefCell<bool>,
     // ID of region this port is in

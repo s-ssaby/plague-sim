@@ -7,7 +7,7 @@ use crate::{population::Population, transportation::Port};
 // Responsible for assigning a unique ID to every region
 static CURRENT_REGION_ID: AtomicU32 = AtomicU32::new(0);
 
-#[derive(Debug, Clone, PartialEq, Copy)]
+#[derive(Debug, Clone, PartialEq, Copy, Eq, Hash, PartialOrd, Ord)]
 pub struct RegionID(u32);
 
 impl RegionID {
@@ -20,10 +20,10 @@ impl RegionID {
 /** Represents a region of the world with a human population */
 #[derive(Debug, Clone, PartialEq)]
 pub struct Region {
-    id: RegionID,
-    name: String,
-    population: Population,
-    ports: Vec<Port>
+    pub id: RegionID,
+    pub name: String,
+    pub population: Population,
+    pub ports: Vec<Port>
 }
 
 impl Region {
@@ -39,10 +39,6 @@ impl Region {
         for port in &mut self.ports {
             port.close_port();
         }
-    }
-
-    pub fn get_ports(&self) -> &[Port] {
-        &self.ports
     }
 }
 
@@ -66,11 +62,11 @@ mod tests {
         assert_ne!(country.id, big_country.id);
 
         // make sure each country's ports have their region's id
-        for port in country.get_ports() {
+        for port in country.ports {
             assert_eq!(port.region.unwrap(), country.id)
         }
 
-        for port in big_country.get_ports() {
+        for port in big_country.ports {
             assert_eq!(port.region.unwrap(), big_country.id)
         }
     }

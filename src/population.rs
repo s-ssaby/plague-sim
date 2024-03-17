@@ -3,10 +3,10 @@ use std::ops::Add;
 #[derive(Debug, Clone, Default, PartialEq)]
 /** Represents any group of people */
 pub struct Population {
-    healthy: u32,
-    infected: u32,
-    dead: u32,
-    recovered: u32
+    pub healthy: u32,
+    pub infected: u32,
+    pub dead: u32,
+    pub recovered: u32
 }
 
 impl Add for Population {
@@ -31,7 +31,7 @@ impl Population {
     // Transports a subpopulation of people out of this population
     // Modifies this population to match resulting population after transportation
     // Errors if group cannot be extracted from this population
-    fn emigrate(&mut self, group: Self) -> Result<(), String> {
+    pub fn emigrate(&mut self, group: Self) -> Result<(), String> {
         if group.healthy > self.healthy {
             Err(format!("Cannot remove {} healthy people from {} healthy people", group.healthy, self.healthy))
         } else if group.dead > self.dead {

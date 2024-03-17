@@ -35,27 +35,27 @@ mod tests {
         let mut port_graph = PortGraph::new();
 
         // add ports
-        for port in china.get_ports().iter() {
-            port_graph.add_port(&port);
+        for port in &china.ports {
+            port_graph.add_port(port);
         }
 
-        for port in us.get_ports().iter() {
-            port_graph.add_port(&port);
+        for port in &us.ports {
+            port_graph.add_port(port);
         }
         
         // connect countries together
-        for china_port in china.get_ports() {
-            for amer_port in us.get_ports() {
+        for china_port in &china.ports {
+            for amer_port in &us.ports {
                 port_graph.add_connection(china_port, amer_port);
                 port_graph.add_connection(amer_port, china_port);
             }
         }
 
-        let first_us_airport = &us.get_ports()[0];
+        let first_us_airport = &us.ports[0];
 
         // TODO! Gross vec conversions, any way to fix?
         let us_airport_dests = port_graph.get_dest_ports(first_us_airport);
-        let all_china_ports_ref: Vec<&Port> = china.get_ports().iter().map(|f| f).collect();
+        let all_china_ports_ref: Vec<&Port> = china.ports.iter().map(|f| f).collect();
         assert_eq!(us_airport_dests, all_china_ports_ref);
 
         
