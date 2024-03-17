@@ -1,8 +1,8 @@
 #![allow(dead_code)]
 
-use std::{ops::Add, sync::atomic::AtomicU32};
+use std::sync::atomic::AtomicU32;
 
-use crate::transportation::Port;
+use crate::{population::Population, transportation::Port};
 
 // Responsible for assigning a unique ID to every region
 static CURRENT_REGION_ID: AtomicU32 = AtomicU32::new(0);
@@ -47,52 +47,31 @@ impl Region {
 }
 
 
-#[derive(Debug, Clone, Default, PartialEq)]
-/** Represents any group of people */
-struct Population {
-    healthy: u32,
-    infected: u32,
-    dead: u32,
-    recovered: u32
-}
+#[cfg(test)]
+mod tests {
+    use crate::transportation::Port;
 
-impl Add for Population {
-    type Output = Self;
+    use super::Region;
 
-    fn add(self, rhs: Self) -> Self {
-        let tot_healthy = self.healthy + rhs.healthy;
-        let tot_infected = self.infected + rhs.infected;
-        let tot_dead = self.dead + rhs.dead;
-        let tot_recovered = self.recovered + rhs.recovered;
-        Population { healthy: tot_healthy, infected: tot_infected, dead: tot_dead, recovered: tot_recovered }
-    }
+    #[test]
+    fn region_construction_test() {
+        let small_port = Port::new(100);
+        let big_port = Port::new(1000);
+        let huge_port = Port::new(10_000_000);
 
-}
+        let country = Region::new("Super".to_owned(), 100, vec![small_port, big_port]);
+        let big_country = Region::new("Mega".to_owned(), 1_000_000, vec![huge_port]);
 
-impl Population {
-    /* Creates a population of healthy people */
-    pub fn new (initial_pop: u32) -> Self{
-        Self {healthy: initial_pop, dead: 0, recovered: 0, infected: 0}
-    }
+        // make sure countries have unique ID
+        assert_ne!(country.id, big_country.id);
 
-    // Transports a subpopulation of people out of this population
-    // Modifies this population to match resulting population after transportation
-    // Errors if group cannot be extracted from this population
-    fn emigrate(&mut self, group: Self) -> Result<(), String> {
-        if group.healthy > self.healthy {
-            Err(format!("Cannot remove {} healthy people from {} healthy people", group.healthy, self.healthy))
-        } else if group.dead > self.dead {
-            Err(format!("Cannot remove {} dead people from {} dead people", group.dead, self.dead))
-        } else if group.recovered > self.recovered {
-            Err(format!("Cannot remove {} recovered people from {} recovered people", group.recovered, self.recovered))
-        } else if group.infected > self.infected {
-            Err(format!("Cannot remove {} infected people from {} infected people", group.infected, self.infected))
-        } else {
-            self.healthy -= group.healthy;
-            self.dead -= group.dead;
-            self.recovered -= group.recovered;
-            self.infected -= group.infected;
-            Ok(())
+        // make sure each country's ports have their region's id
+        for port in country.get_ports() {
+            assert_eq!(port.region.unwrap(), country.id)
+        }
+
+        for port in big_country.get_ports() {
+            assert_eq!(port.region.unwrap(), big_country.id)
         }
     }
 }
