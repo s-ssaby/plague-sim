@@ -84,6 +84,16 @@ impl<'med> RegionTransportationMediator<'med> {
         }
         jobs
     }
+
+    /** Retrieves number of people currently in transit (aka not residing in any region currently) */
+    pub fn get_in_transit(&self) -> u32 {
+        let mut total: u32 = 0;
+        for job in self.ongoing_transport {
+            let pop_total = job.population.dead + job.population.healthy + job.population.infected + job.population.recovered;
+            total += pop_total;
+        }
+        total
+    }
 }
 
 struct TransportJob {
@@ -91,5 +101,63 @@ struct TransportJob {
     end_region: RegionID,
     population: Population,
     time: u32
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{region::Region, transportation::Port, transportation_graph::PortGraph};
+
+    use super::RegionTransportationMediator;
+
+    #[test]
+    fn test_mediator_intra_country_transport() {
+
+    }
+
+    #[test]
+    fn test_mediator_inter_country_transport() {
+
+    }
+    #[test]
+    fn test_mediator_all_transport() {
+        let us_cal_port = Port::new(1000);
+        let us_ny_port = Port::new(1000);
+        
+        let france_port = Port::new(500);
+        let poland_port = Port::new(500);
+
+        let beijing_port = Port::new(2000);
+        let hong_kong_port = Port::new(2000);
+
+        let mut port_graph = PortGraph::new();
+        port_graph.add_port(&us_cal_port);
+        port_graph.add_port(&us_ny_port);
+        port_graph.add_port(&france_port);
+        port_graph.add_port(&poland_port);
+        port_graph.add_port(&beijing_port);
+        port_graph.add_port(&hong_kong_port);
+
+        // add connections
+        // start in US cal
+        port_graph.add_connection(&us_cal_port, &us_ny_port);
+        port_graph.add_connection(&us_ny_port, &france_port);
+        port_graph.add_connection(&france_port, &poland_port);
+        port_graph.add_connection(&poland_port, &beijing_port);
+        port_graph.add_connection(&beijing_port, &hong_kong_port);
+        port_graph.add_connection(&hong_kong_port, &us_cal_port);
+
+        let us_ports = vec![us_cal_port, us_ny_port];
+        let europe_ports = vec![france_port, poland_port];
+        let china_ports = vec![beijing_port, hong_kong_port];
+
+        // Create regions
+        let US = Region::new("United States".to_owned(), 3000, us_ports);
+        let china = Region::new("China".to_owned(), 10000, china_ports);
+        let europe = Region::new("Europe".to_owned(), 5000, europe_ports);
+
+        // create mediator, add regions
+        let med = RegionTransportationMediator::new(&port_graph, vec![US, china, europe]);
+        
+    }
 }
 
