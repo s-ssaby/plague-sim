@@ -6,7 +6,7 @@ use crate::region::RegionID;
 
 
 
-#[derive(Debug, Clone, Default, PartialEq)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Hash, Copy)]
 pub struct PortID(pub u32);
 
 impl PortID {
