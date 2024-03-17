@@ -5,6 +5,7 @@ mod transportation;
 mod transportation_graph;
 mod pathogen;
 mod population;
+mod region_transportation_mediator;
 
 
 #[cfg(test)]
