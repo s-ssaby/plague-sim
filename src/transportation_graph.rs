@@ -2,7 +2,8 @@
 
 use std::{cell::RefCell, collections::HashMap, vec};
 
-use crate::transportation::{Port, PortID};
+use crate::region::{Port, PortID};
+
 
 
 struct PortNode {
@@ -105,22 +106,25 @@ struct PortConnection<'a> {
 #[cfg(test)]
 mod tests {
 
-    use crate::transportation::{self, PortID};
+
+    use crate::region::Region;
 
     use super::*;
 
     #[test]
     fn graph_add_ports() {
+        let mut america = Region::new("America".to_owned(), 3000);
+        let mut europe = Region::new("Europe".to_owned(), 5000);
         let mut american_ports: Vec<Port> = vec![];
         let mut europe_ports: Vec<Port> = vec![];
         
-        let amer1 = Port::new(PortID::new(0), 150);
-        let amer2 = Port::new(PortID::new(1), 170);
+        let amer1 = america.add_port(PortID::new(0), 150);
+        let amer2 = america.add_port(PortID::new(1), 170);
 
-        let eu1 = Port::new(PortID::new(2), 190);
-        let eu2 = Port::new(PortID::new(3), 300);
-        let eu3 = Port::new(PortID::new(4), 500);
-        let eu4 = Port::new(PortID::new(5), 800);
+        let eu1 = europe.add_port(PortID::new(2), 190);
+        let eu2 = europe.add_port(PortID::new(3), 300);
+        let eu3 = europe.add_port(PortID::new(4), 500);
+        let eu4 = europe.add_port(PortID::new(5), 800);
 
         american_ports.push(amer1);
         american_ports.push(amer2);

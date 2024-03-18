@@ -1,7 +1,6 @@
 #![warn(clippy::arithmetic_side_effects, clippy::default_numeric_fallback)]
 
 pub mod region;
-pub mod transportation;
 pub mod transportation_graph;
 pub mod pathogen;
 pub mod population;
@@ -10,30 +9,30 @@ pub mod region_transportation_mediator;
 
 #[cfg(test)]
 mod tests {
-    use crate::transportation::PortID;
 
-    use self::{region::Region, transportation::Port, transportation_graph::PortGraph};
+    use crate::{region::{Port, PortID}, transportation_graph::PortGraph};
 
+    use self::region::Region;
     use super::*;
 
     #[test]
     fn it_works() {
         // create countries
+        let mut us = Region::new("United States".to_string(), 1000);
         let mut us_ports = vec![];
-        let us_port1 = Port::new(PortID::new(0), 100);
-        let us_port2 = Port::new(PortID::new(1), 200);
+        let us_port1 = us.add_port(PortID::new(0), 100);
+        let us_port2 = us.add_port(PortID::new(1), 200);
         us_ports.push(us_port1);
         us_ports.push(us_port2);
-        let us = Region::new("United States".to_string(), 1000, us_ports);
 
+        let mut china = Region::new("China".to_string(), 10000);
         let mut china_ports = vec![];
-        let china_port1 = Port::new(PortID::new(2), 100);
-        let china_port2 = Port::new(PortID::new(3), 200);
-        let china_port3 = Port::new(PortID::new(4), 200);
+        let china_port1 = china.add_port(PortID::new(2), 100);
+        let china_port2 = china.add_port(PortID::new(3), 200);
+        let china_port3 = china.add_port(PortID::new(4), 200);
         china_ports.push(china_port1);
         china_ports.push(china_port2);
         china_ports.push(china_port3);
-        let china = Region::new("China".to_string(), 10000, china_ports);
 
         let mut port_graph = PortGraph::new();
 

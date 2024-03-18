@@ -67,39 +67,6 @@ impl RegionID {
     }
 }
 
-// #[derive(Debug, PartialEq)]
-// /** Represents a struct for building Regions */
-// /** Used primarily in configuration when not all information for Region available at once */
-// pub struct RegionBuilder {
-//     pub name: Option<String>,
-//     pub population: Option<Population>,
-//     pub ports: Vec<Port>
-// }
-
-// impl RegionBuilder {
-//     pub fn new() -> Self{
-//         let name = None;
-//         let population = None;
-//         let ports = vec![];
-//         RegionBuilder {name, population, ports}
-//     } 
-
-//     pub fn set_name(&mut self, name: String) {
-//         self.name = Some(name);
-//     }
-
-//     pub fn set_population(&mut self, population: Population) {
-//         self.population = Some(population);
-//     }
-
-//     /** Creates a Region  */
-//     /** Consumes builder on creation or failure */
-//     pub fn build(self) -> Result<Region, String> {
-//         let reg = Region::try_from(self);
-//         reg        
-//     }
-// }
-
 /** Represents a region of the world with a human population */
 #[derive(Debug, Clone, PartialEq)]
 pub struct Region {
@@ -140,8 +107,9 @@ impl Region {
     /** Adds port to Region and returns a copy */
     pub fn add_port(&mut self, port_id: PortID, capacity: u32) -> Port {
         let port = Port::new(port_id, self.id, capacity);
+        let clone = port.clone();
         self.ports.push(port);
-        port.clone()
+        clone
     }  
 
     /** Retrieves reference to port if it exists in Region */

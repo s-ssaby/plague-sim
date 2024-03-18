@@ -85,20 +85,16 @@ impl RegionTransportationMediator {
             let dest_port = port_dests.unwrap()[port_index as usize];
 
             // move out people and create transport job            
-            match dest_port.region {
-                Some(end_region) => {
-                    let population = Population::new(100);
-                    match region.population.emigrate(population) {
-                        Ok(_) => {
-                            let start_region = region.id;
-                            // assume transportation takes 2 days
-                            let job = TransportJob {start_region, end_region, population, time: 2};
-                            jobs.push(job)
-                        },
-                        Err(e) => panic!("{}", e),
-                    }
+            let end_region = dest_port.region;
+            let population = Population::new(100);
+            match region.population.emigrate(population) {
+                Ok(_) => {
+                    let start_region = region.id;
+                    // assume transportation takes 2 days
+                    let job = TransportJob {start_region, end_region, population, time: 2};
+                    jobs.push(job)
                 },
-                None => panic!("Destination port not part of a region!"),
+                Err(e) => panic!("{}", e),
             }
         }
         jobs
@@ -116,7 +112,8 @@ struct TransportJob {
 mod tests {
     use std::{collections::HashMap, fs, vec};
 
-    use crate::{population::Population, region::{self, Region, RegionBuilder}, transportation::{Port, PortID}, transportation_graph::PortGraph};
+
+    use crate::{population::Population, region::{Port, PortID, Region}, transportation_graph::PortGraph};
 
     use super::RegionTransportationMediator;
 
@@ -140,12 +137,10 @@ mod tests {
         'outer: while let Some(current_line_unwrap) = current_line {
             //set current region
             if current_line_unwrap.starts_with("Region:") {
-                let mut current_region = RegionBuilder::new();
                 let mut parts = current_line_unwrap.split(":");
                 let country_name = parts.nth(1).unwrap().to_owned();
                 let population: u32 = parts.nth(0).unwrap().parse().expect("Region line doesn't have population");
-                &current_region.set_name(country_name);
-                &current_region.set_population(Population::new(population));
+                let mut current_region = Region::new(country_name, population);
                 'inner: while let Some(next_line_unwrap) = next_line {
                     let new_next_line = file.next();
                     if new_next_line.is_none() {
@@ -153,15 +148,15 @@ mod tests {
                         let mut connections = next_line_unwrap.split(":");
                         let port_id: u32 = connections.next().unwrap().parse().expect("Port ID not found");
                         let capacity: u32 = connections.next().unwrap().parse().expect("Capacity not found");
-                        let port = Port::new(PortID(port_id), capacity);
+                        let port = current_region.add_port(PortID(port_id), capacity);
                         &current_region.ports.push(port.clone());
                         ports.push(port);
                         current_line = next_line;
                         next_line = new_next_line;
-                        regions.push(current_region.build().expect("Failed to build region"));
+                        regions.push(current_region);
                         break 'outer;
                     } else if next_line_unwrap.starts_with("Region:") {
-                        regions.push(current_region.build().expect("Failed to build region"));
+                        regions.push(current_region);
                         assert_ne!(current_line.unwrap(), next_line.unwrap());
                         current_line = next_line;
                         assert_ne!(next_line.unwrap(), new_next_line.unwrap());
@@ -172,7 +167,7 @@ mod tests {
                         let mut connections = next_line_unwrap.split(":");
                         let port_id: u32 = connections.next().unwrap().parse().expect("Port ID not found");
                         let capacity: u32 = connections.next().unwrap().parse().expect("Capacity not found");
-                        let port = Port::new(PortID(port_id), capacity);
+                        let port = current_region.add_port(PortID(port_id), capacity);
                         &current_region.ports.push(port.clone());
                         ports.push(port);
                         assert_ne!(current_line.unwrap(), next_line.unwrap());
