@@ -8,12 +8,12 @@ use crate::{population::Population, region::{Region, RegionID}, transportation_g
 /** Once regions added, cannot add more or take away */
 struct RegionTransportationMediator <'a> {
     regions: HashMap<RegionID, Region>,
-    port_graph: &'a PortGraph<'a>,
+    port_graph: &'a PortGraph,
     ongoing_transport: Vec<TransportJob>
 }
 
 impl<'med> RegionTransportationMediator<'med> {
-    fn new(port_graph: &'med PortGraph<'med>, regions: Vec<Region>) -> Self {
+    fn new(port_graph: &'med PortGraph, regions: Vec<Region>) -> Self {
         let mut region_map = HashMap::new();
         for region in regions {
             region_map.insert(region.id, region);
@@ -54,16 +54,16 @@ impl<'med> RegionTransportationMediator<'med> {
     }
 
     // calculate transport jobs for a region
-    fn calculate_transport_jobs(port_graph: &'med PortGraph<'med>, region: &'med mut Region) -> Vec<TransportJob> {
+    fn calculate_transport_jobs(port_graph: &'med PortGraph, region: &'med mut Region) -> Vec<TransportJob> {
         let mut jobs: Vec<TransportJob> = vec![];
         // look at each port
         for port in &region.ports {
             // where can each port go to?
-            let port_dests = port_graph.get_dest_ports(port);
+            let port_dests = port_graph.get_dest_ports(port.id);
 
             // pick random port to travel to
-            let port_index = ((port_dests.len() as f64)*fastrand::f64()) as u32;
-            let dest_port = port_dests[port_index as usize];
+            let port_index = ((port_dests.as_ref().unwrap().len() as f64)*fastrand::f64()) as u32;
+            let dest_port = port_dests.unwrap()[port_index as usize];
 
             // move out people and create transport job            
             match dest_port.region {
@@ -88,7 +88,7 @@ impl<'med> RegionTransportationMediator<'med> {
     /** Retrieves number of people currently in transit (aka not residing in any region currently) */
     pub fn get_in_transit(&self) -> u32 {
         let mut total: u32 = 0;
-        for job in self.ongoing_transport {
+        for job in &self.ongoing_transport {
             let pop_total = job.population.dead + job.population.healthy + job.population.infected + job.population.recovered;
             total += pop_total;
         }
@@ -105,7 +105,9 @@ struct TransportJob {
 
 #[cfg(test)]
 mod tests {
-    use crate::{region::Region, transportation::Port, transportation_graph::PortGraph};
+    use std::{collections::HashMap, fs, vec};
+
+    use crate::{population::Population, region::{self, Region, RegionBuilder}, transportation::{Port, PortID}, transportation_graph::PortGraph};
 
     use super::RegionTransportationMediator;
 
@@ -120,43 +122,86 @@ mod tests {
     }
     #[test]
     fn test_mediator_all_transport() {
-        let us_cal_port = Port::new(1000);
-        let us_ny_port = Port::new(1000);
-        
-        let france_port = Port::new(500);
-        let poland_port = Port::new(500);
+        let mut ports: Vec<Port> = vec![];
+        let file = fs::read_to_string("src/countries.txt").expect("Cannot find file");
+        let mut file = file.lines();
+        let mut current_line = file.next();
+        let mut next_line = file.next();
+        let mut regions: Vec<Region> = vec![];
+        while let Some(current_line_unwrap) = current_line {
+            //set current region
+            if current_line_unwrap.starts_with("Region:") {
+                let mut current_region = RegionBuilder::new();
+                let mut parts = current_line_unwrap.split(":");
+                let country_name = parts.nth(1).unwrap().to_owned();
+                let population: u32 = parts.nth(0).unwrap().parse().expect("Region line doesn't have population");
+                current_region.set_name(country_name);
+                current_region.set_population(Population::new(population));
+                'inner: while let Some(next_line_unwrap) = next_line {
+                    let new_next_line = file.next();
+                    if next_line_unwrap.starts_with("Region:") {
+                        regions.push(current_region.build().expect("Failed to build region"));
+                        current_line = next_line;
+                        next_line = new_next_line;
+                        break 'inner;
+                    } else {
+                        // add port
+                        let mut connections = next_line_unwrap.split(":");
+                        let port_id: u32 = connections.next().unwrap().parse().expect("Port ID not found");
+                        let capacity: u32 = connections.next().unwrap().parse().expect("Capacity not found");
+                        let port = Port::new(PortID(port_id), capacity);
+                        current_region.ports.push(port.clone());
+                        ports.push(port);
+                        current_line = next_line;
+                        next_line = new_next_line;
+                    }
+                }
+            }
+            current_line = next_line;
+            next_line = file.next();
+        }
+        let expected_names = ["United States", "Europe", "China"];
+        // Assert that regions correctly read in
+        assert_eq!(regions[0].name, expected_names[0]);
+        assert_eq!(regions[1].name, expected_names[1]);
+        assert_eq!(regions[2].name, expected_names[2]);
 
-        let beijing_port = Port::new(2000);
-        let hong_kong_port = Port::new(2000);
 
-        let mut port_graph = PortGraph::new();
-        port_graph.add_port(&us_cal_port);
-        port_graph.add_port(&us_ny_port);
-        port_graph.add_port(&france_port);
-        port_graph.add_port(&poland_port);
-        port_graph.add_port(&beijing_port);
-        port_graph.add_port(&hong_kong_port);
+        // create graph
+        let mut graph = PortGraph::new();
+        // add ports
+        for port in ports {
+            graph.add_port(port);
+        }
 
-        // add connections
-        // start in US cal
-        port_graph.add_connection(&us_cal_port, &us_ny_port);
-        port_graph.add_connection(&us_ny_port, &france_port);
-        port_graph.add_connection(&france_port, &poland_port);
-        port_graph.add_connection(&poland_port, &beijing_port);
-        port_graph.add_connection(&beijing_port, &hong_kong_port);
-        port_graph.add_connection(&hong_kong_port, &us_cal_port);
+        assert!(graph.in_graph(PortID(0)));
+        assert!(graph.in_graph(PortID(1)));
+        assert!(graph.in_graph(PortID(2)));
+        assert!(graph.in_graph(PortID(3)));
+        assert!(graph.in_graph(PortID(4)));
+        assert!(graph.in_graph(PortID(5)));
+        assert!(!graph.in_graph(PortID(6)));
 
-        let us_ports = vec![us_cal_port, us_ny_port];
-        let europe_ports = vec![france_port, poland_port];
-        let china_ports = vec![beijing_port, hong_kong_port];
+        // read connections
+        let mut connections = fs::read_to_string("connections.txt").expect("Cannot find file");
+        let mut connections = connections.lines();
+        while let Some(current_line) = connections.next() {
+            let mut parts = current_line.split(":");
+            let start_id = PortID(parts.next().unwrap().parse().expect("msg"));
+            let end_id = PortID(parts.next().unwrap().parse().expect("msg"));
+            graph.add_connection(start_id, end_id);
+        }
 
-        // Create regions
-        let US = Region::new("United States".to_owned(), 3000, us_ports);
-        let china = Region::new("China".to_owned(), 10000, china_ports);
-        let europe = Region::new("Europe".to_owned(), 5000, europe_ports);
-
+        // all proper connections here?
+        assert_eq!(graph.get_dest_ports(PortID(0)).unwrap(), vec![graph.get_port(PortID(1)).unwrap()]);
+        assert_eq!(graph.get_dest_ports(PortID(1)).unwrap(), vec![graph.get_port(PortID(2)).unwrap()]);
+        assert_eq!(graph.get_dest_ports(PortID(2)).unwrap(), vec![graph.get_port(PortID(3)).unwrap()]);
+        assert_eq!(graph.get_dest_ports(PortID(3)).unwrap(), vec![graph.get_port(PortID(4)).unwrap()]);
+        assert_eq!(graph.get_dest_ports(PortID(4)).unwrap(), vec![graph.get_port(PortID(5)).unwrap()]);
+        assert_eq!(graph.get_dest_ports(PortID(5)).unwrap(), vec![graph.get_port(PortID(0)).unwrap()]);
+     
         // create mediator, add regions
-        let med = RegionTransportationMediator::new(&port_graph, vec![US, china, europe]);
+        let med = RegionTransportationMediator::new(&graph, regions);
         
     }
 }

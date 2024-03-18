@@ -1,0 +1,9 @@
+Region:United States:3000
+0:1000
+1:1000
+Region:Europe:5000
+2:500
+3:500
+Region:China:10000
+4:2000
+5:2000
