@@ -3,27 +3,40 @@ use std::collections::HashMap;
 use crate::{population::Population, region::{Region, RegionID}, transportation_graph::PortGraph};
 
 
+/** Stores data not necessary for mediator's functioning, but may be useful for clients */
+pub struct MediatorStatistics {
+    /** Number of people currently in transit */
+    pub in_transit: u32
+}
+
+impl MediatorStatistics {
+    fn new () -> Self {
+        Self { in_transit: 0 }
+    }
+}
+
 // Controls transportation interactions between the regions it possesses
 /** Assumes that every port in provided port graph belongs to a region */
 /** Once regions added, cannot add more or take away */
-struct RegionTransportationMediator <'a> {
+pub struct RegionTransportationMediator {
     regions: HashMap<RegionID, Region>,
-    port_graph: &'a PortGraph,
-    ongoing_transport: Vec<TransportJob>
+    port_graph: PortGraph,
+    ongoing_transport: Vec<TransportJob>,
+    pub statistics: MediatorStatistics
 }
 
-impl<'med> RegionTransportationMediator<'med> {
-    fn new(port_graph: &'med PortGraph, regions: Vec<Region>) -> Self {
+impl RegionTransportationMediator {
+    pub fn new(port_graph: PortGraph, regions: Vec<Region>) -> Self {
         let mut region_map = HashMap::new();
         for region in regions {
             region_map.insert(region.id, region);
         }
-        Self { regions: region_map, port_graph, ongoing_transport: vec![]}
+        Self { regions: region_map, port_graph, ongoing_transport: vec![], statistics: MediatorStatistics::new()}
     }
 
     // create interactions between regions for each region
     // also updates populations of regions when people leave
-    fn update(&'med mut self) {
+    pub fn update(&mut self) {
         // process jobs
         self.ongoing_transport.retain_mut(|job| {
             if job.time == 0 {
@@ -45,16 +58,22 @@ impl<'med> RegionTransportationMediator<'med> {
         let mut all_new_jobs: Vec<TransportJob> = vec![];
         // generate new jobs
         for region in self.regions.values_mut() {
-            let new_jobs = Self::calculate_transport_jobs(self.port_graph, region);
+            let new_jobs = Self::calculate_transport_jobs(&self.port_graph, region);
             all_new_jobs.extend(new_jobs);
         }
 
         self.ongoing_transport.extend(all_new_jobs);
 
+        // update stats
+        let mut total = 0;
+        for job in &self.ongoing_transport {
+            total += job.population.infected + job.population.dead + job.population.recovered + job.population.healthy;
+        }
+        self.statistics.in_transit = total;
     }
 
     // calculate transport jobs for a region
-    fn calculate_transport_jobs(port_graph: &'med PortGraph, region: &'med mut Region) -> Vec<TransportJob> {
+    fn calculate_transport_jobs(port_graph: &PortGraph, region: &mut Region) -> Vec<TransportJob> {
         let mut jobs: Vec<TransportJob> = vec![];
         // look at each port
         for port in &region.ports {
@@ -83,16 +102,6 @@ impl<'med> RegionTransportationMediator<'med> {
             }
         }
         jobs
-    }
-
-    /** Retrieves number of people currently in transit (aka not residing in any region currently) */
-    pub fn get_in_transit(&self) -> u32 {
-        let mut total: u32 = 0;
-        for job in &self.ongoing_transport {
-            let pop_total = job.population.dead + job.population.healthy + job.population.infected + job.population.recovered;
-            total += pop_total;
-        }
-        total
     }
 }
 
@@ -216,7 +225,8 @@ mod tests {
         assert_eq!(graph.get_dest_ports(PortID(5)).unwrap(), vec![graph.get_port(PortID(0)).unwrap()]);
      
         // create mediator, add regions
-        let med = RegionTransportationMediator::new(&graph, regions);
+        let med = RegionTransportationMediator::new(graph, regions);
+        
         
     }
 }
