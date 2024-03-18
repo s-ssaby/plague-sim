@@ -1,11 +1,11 @@
 #![warn(clippy::arithmetic_side_effects, clippy::default_numeric_fallback)]
 
-mod region;
-mod transportation;
-mod transportation_graph;
-mod pathogen;
-mod population;
-mod region_transportation_mediator;
+pub mod region;
+pub mod transportation;
+pub mod transportation_graph;
+pub mod pathogen;
+pub mod population;
+pub mod region_transportation_mediator;
 
 
 #[cfg(test)]

@@ -128,20 +128,34 @@ mod tests {
         let mut current_line = file.next();
         let mut next_line = file.next();
         let mut regions: Vec<Region> = vec![];
-        while let Some(current_line_unwrap) = current_line {
+        'outer: while let Some(current_line_unwrap) = current_line {
             //set current region
             if current_line_unwrap.starts_with("Region:") {
                 let mut current_region = RegionBuilder::new();
                 let mut parts = current_line_unwrap.split(":");
                 let country_name = parts.nth(1).unwrap().to_owned();
                 let population: u32 = parts.nth(0).unwrap().parse().expect("Region line doesn't have population");
-                current_region.set_name(country_name);
-                current_region.set_population(Population::new(population));
+                &current_region.set_name(country_name);
+                &current_region.set_population(Population::new(population));
                 'inner: while let Some(next_line_unwrap) = next_line {
                     let new_next_line = file.next();
-                    if next_line_unwrap.starts_with("Region:") {
-                        regions.push(current_region.build().expect("Failed to build region"));
+                    if new_next_line.is_none() {
+                        // add final port, then build region
+                        let mut connections = next_line_unwrap.split(":");
+                        let port_id: u32 = connections.next().unwrap().parse().expect("Port ID not found");
+                        let capacity: u32 = connections.next().unwrap().parse().expect("Capacity not found");
+                        let port = Port::new(PortID(port_id), capacity);
+                        &current_region.ports.push(port.clone());
+                        ports.push(port);
                         current_line = next_line;
+                        next_line = new_next_line;
+                        regions.push(current_region.build().expect("Failed to build region"));
+                        break 'outer;
+                    } else if next_line_unwrap.starts_with("Region:") {
+                        regions.push(current_region.build().expect("Failed to build region"));
+                        assert_ne!(current_line.unwrap(), next_line.unwrap());
+                        current_line = next_line;
+                        assert_ne!(next_line.unwrap(), new_next_line.unwrap());
                         next_line = new_next_line;
                         break 'inner;
                     } else {
@@ -150,16 +164,17 @@ mod tests {
                         let port_id: u32 = connections.next().unwrap().parse().expect("Port ID not found");
                         let capacity: u32 = connections.next().unwrap().parse().expect("Capacity not found");
                         let port = Port::new(PortID(port_id), capacity);
-                        current_region.ports.push(port.clone());
+                        &current_region.ports.push(port.clone());
                         ports.push(port);
+                        assert_ne!(current_line.unwrap(), next_line.unwrap());
                         current_line = next_line;
+                        assert_ne!(next_line.unwrap(), new_next_line.unwrap());
                         next_line = new_next_line;
                     }
                 }
             }
-            current_line = next_line;
-            next_line = file.next();
         }
+
         let expected_names = ["United States", "Europe", "China"];
         // Assert that regions correctly read in
         assert_eq!(regions[0].name, expected_names[0]);
@@ -183,7 +198,7 @@ mod tests {
         assert!(!graph.in_graph(PortID(6)));
 
         // read connections
-        let mut connections = fs::read_to_string("connections.txt").expect("Cannot find file");
+        let mut connections = fs::read_to_string("src/connections.txt").expect("Cannot find file");
         let mut connections = connections.lines();
         while let Some(current_line) = connections.next() {
             let mut parts = current_line.split(":");
