@@ -5,6 +5,7 @@ pub mod transportation_graph;
 pub mod pathogen;
 pub mod population;
 pub mod region_transportation_mediator;
+pub mod config;
 
 
 #[cfg(test)]

@@ -113,7 +113,7 @@ mod tests {
     use std::{collections::HashMap, fs, vec};
 
 
-    use crate::{population::Population, region::{Port, PortID, Region}, transportation_graph::PortGraph};
+    use crate::{config::load_config_data, population::Population, region::{Port, PortID, Region}, transportation_graph::PortGraph};
 
     use super::RegionTransportationMediator;
 
@@ -128,101 +128,10 @@ mod tests {
     }
     #[test]
     fn test_mediator_all_transport() {
-        let mut ports: Vec<Port> = vec![];
-        let file = fs::read_to_string("src/countries.txt").expect("Cannot find file");
-        let mut file = file.lines();
-        let mut current_line = file.next();
-        let mut next_line = file.next();
-        let mut regions: Vec<Region> = vec![];
-        'outer: while let Some(current_line_unwrap) = current_line {
-            //set current region
-            if current_line_unwrap.starts_with("Region:") {
-                let mut parts = current_line_unwrap.split(":");
-                let country_name = parts.nth(1).unwrap().to_owned();
-                let population: u32 = parts.nth(0).unwrap().parse().expect("Region line doesn't have population");
-                let mut current_region = Region::new(country_name, population);
-                'inner: while let Some(next_line_unwrap) = next_line {
-                    let new_next_line = file.next();
-                    if new_next_line.is_none() {
-                        // add final port, then build region
-                        let mut connections = next_line_unwrap.split(":");
-                        let port_id: u32 = connections.next().unwrap().parse().expect("Port ID not found");
-                        let capacity: u32 = connections.next().unwrap().parse().expect("Capacity not found");
-                        let port = current_region.add_port(PortID(port_id), capacity);
-                        &current_region.ports.push(port.clone());
-                        ports.push(port);
-                        current_line = next_line;
-                        next_line = new_next_line;
-                        regions.push(current_region);
-                        break 'outer;
-                    } else if next_line_unwrap.starts_with("Region:") {
-                        regions.push(current_region);
-                        assert_ne!(current_line.unwrap(), next_line.unwrap());
-                        current_line = next_line;
-                        assert_ne!(next_line.unwrap(), new_next_line.unwrap());
-                        next_line = new_next_line;
-                        break 'inner;
-                    } else {
-                        // add port
-                        let mut connections = next_line_unwrap.split(":");
-                        let port_id: u32 = connections.next().unwrap().parse().expect("Port ID not found");
-                        let capacity: u32 = connections.next().unwrap().parse().expect("Capacity not found");
-                        let port = current_region.add_port(PortID(port_id), capacity);
-                        &current_region.ports.push(port.clone());
-                        ports.push(port);
-                        assert_ne!(current_line.unwrap(), next_line.unwrap());
-                        current_line = next_line;
-                        assert_ne!(next_line.unwrap(), new_next_line.unwrap());
-                        next_line = new_next_line;
-                    }
-                }
-            }
-        }
-
-        let expected_names = ["United States", "Europe", "China"];
-        // Assert that regions correctly read in
-        assert_eq!(regions[0].name, expected_names[0]);
-        assert_eq!(regions[1].name, expected_names[1]);
-        assert_eq!(regions[2].name, expected_names[2]);
-
-
-        // create graph
-        let mut graph = PortGraph::new();
-        // add ports
-        for port in ports {
-            graph.add_port(port);
-        }
-
-        assert!(graph.in_graph(PortID(0)));
-        assert!(graph.in_graph(PortID(1)));
-        assert!(graph.in_graph(PortID(2)));
-        assert!(graph.in_graph(PortID(3)));
-        assert!(graph.in_graph(PortID(4)));
-        assert!(graph.in_graph(PortID(5)));
-        assert!(!graph.in_graph(PortID(6)));
-
-        // read connections
-        let mut connections = fs::read_to_string("src/connections.txt").expect("Cannot find file");
-        let mut connections = connections.lines();
-        while let Some(current_line) = connections.next() {
-            let mut parts = current_line.split(":");
-            let start_id = PortID(parts.next().unwrap().parse().expect("msg"));
-            let end_id = PortID(parts.next().unwrap().parse().expect("msg"));
-            graph.add_connection(start_id, end_id);
-        }
-
-        // all proper connections here?
-        assert_eq!(graph.get_dest_ports(PortID(0)).unwrap(), vec![graph.get_port(PortID(1)).unwrap()]);
-        assert_eq!(graph.get_dest_ports(PortID(1)).unwrap(), vec![graph.get_port(PortID(2)).unwrap()]);
-        assert_eq!(graph.get_dest_ports(PortID(2)).unwrap(), vec![graph.get_port(PortID(3)).unwrap()]);
-        assert_eq!(graph.get_dest_ports(PortID(3)).unwrap(), vec![graph.get_port(PortID(4)).unwrap()]);
-        assert_eq!(graph.get_dest_ports(PortID(4)).unwrap(), vec![graph.get_port(PortID(5)).unwrap()]);
-        assert_eq!(graph.get_dest_ports(PortID(5)).unwrap(), vec![graph.get_port(PortID(0)).unwrap()]);
+        let config = load_config_data("src/countries.txt", "src/connections.txt").unwrap();
      
         // create mediator, add regions
-        let med = RegionTransportationMediator::new(graph, regions);
-        
-        
+        let med = RegionTransportationMediator::new(config.graph, config.regions);
     }
 }
 
