@@ -19,18 +19,26 @@ impl PortNode {
 
 /** Represents a graph of port connections */
 pub struct PortGraph {
-    ports: HashMap<PortID, PortNode>,
+    port_nodes: HashMap<PortID, PortNode>
 }
 
+/* Ensure following invariants: */
+// Every port in ports has a reference to its corresponding port node
+// Every connection exists between nodes that exist in graph
 impl PortGraph {
     pub fn new() -> Self{
-        PortGraph {ports: HashMap::new()}
+        PortGraph {port_nodes: HashMap::new()}
+    }
+
+    /** Returns references to all ports in graph */
+    pub fn get_ports(&self) -> Vec<&Port> {
+        self.port_nodes.values().map(|node| &node.port).collect()
     }
 
     pub fn add_port(&mut self, port: Port) {
         let id = port.id;
         let node = PortNode::new(port);
-        self.ports.insert(id, node);
+        self.port_nodes.insert(id, node);
     }
 
     pub fn in_graph(&self, id: PortID) -> bool {
@@ -38,11 +46,11 @@ impl PortGraph {
     }
 
     fn get_node(&self, id: PortID) -> Option<&PortNode> {
-        self.ports.values().find(|node| node.port.id == id)
+        self.port_nodes.values().find(|node| node.port.id == id)
     }
 
     pub fn get_port(&self, id: PortID) -> Option<&Port> {
-        let node = self.ports.values().find(|node| node.port.id == id);
+        let node = self.port_nodes.values().find(|node| node.port.id == id);
         match node {
             Some(node) => {
                 Some(&node.port)
