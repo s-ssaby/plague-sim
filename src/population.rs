@@ -28,6 +28,17 @@ impl Population {
         Self {healthy: initial_pop, dead: 0, recovered: 0, infected: 0}
     }
 
+
+    /* Returns all non-dead people in population */
+    pub fn get_alive(&self) -> u32 {
+        self.healthy + self.infected + self.recovered
+    }
+
+    /** Returns total population, including dead */
+    pub fn get_total(&self) -> u32 {
+        self.dead + self.healthy + self.recovered + self.infected
+    }
+
     // Transports a subpopulation of people out of this population
     // Modifies this population to match resulting population after transportation
     // Errors if group cannot be extracted from this population
