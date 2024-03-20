@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{population::Population, region::{Region, RegionID}, transportation_graph::PortGraph};
+use crate::{population::Population, region::{Region, RegionID}, transportation_allocator::{RandomTransportAllocator, TransportAllocator, TransportJob}, transportation_graph::PortGraph};
 
 
 /** Stores data not necessary for mediator's functioning, but may be useful for clients */
@@ -93,20 +93,13 @@ impl RegionTransportationMediator {
         // look at each port
         for port in &region.ports {
             // where can each port go to?
-            let port_dests = port_graph.get_dest_ports(port.id);
+            let port_dests = port_graph.get_dest_ports(port.id).unwrap();
 
-            // pick random port to travel to
-            let port_index = ((port_dests.as_ref().unwrap().len() as f64)*fastrand::f64()) as u32;
-            let dest_port = port_dests.unwrap()[port_index as usize];
-
-            // move out people and create transport job            
-            let end_region = dest_port.region;
-            let population = Population::new(100);
-            match region.population.emigrate(population) {
+            // calculate a possible transport job
+            let job = RandomTransportAllocator::calculate_transport(port, region, port_dests);
+            match region.population.emigrate(job.population) {
                 Ok(_) => {
-                    let start_region = region.id;
                     // assume transportation takes 2 days
-                    let job = TransportJob {start_region, end_region, population, time: 2};
                     jobs.push(job)
                 },
                 Err(e) => panic!("{}", e),
@@ -114,13 +107,6 @@ impl RegionTransportationMediator {
         }
         jobs
     }
-}
-
-struct TransportJob {
-    start_region: RegionID,
-    end_region: RegionID,
-    population: Population,
-    time: u32
 }
 
 #[cfg(test)]
