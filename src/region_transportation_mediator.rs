@@ -125,28 +125,82 @@ struct TransportJob {
 
 #[cfg(test)]
 mod tests {
-    use std::{collections::HashMap, fs, vec};
 
 
-    use crate::{config::load_config_data, population::Population, region::{Port, PortID, Region}, transportation_graph::PortGraph};
+    use crate::{config::load_config_data, region::{PortID, Region}, transportation_graph::PortGraph};
 
     use super::RegionTransportationMediator;
 
     #[test]
+    /** Tests simulations where all transport connections occur within same region */
     fn test_mediator_intra_country_transport() {
+        let china_pop = 5000;
+        let mut china = Region::new("China".to_owned(), china_pop);
+        let port1 = china.add_port(PortID(1), 100);
+        let port2 = china.add_port(PortID(2), 200);
+        let port3 = china.add_port(PortID(3), 500);
+        let port4 = china.add_port(PortID(4), 50);
 
+        let mut graph = PortGraph::new();
+        graph.add_port(port1);
+        graph.add_port(port2);
+        graph.add_port(port3);
+        graph.add_port(port4);
+
+        graph.add_connection(PortID(1), PortID(2));
+        graph.add_connection(PortID(2), PortID(3));
+        graph.add_connection(PortID(3), PortID(4));
+        graph.add_connection(PortID(4), PortID(1));
+        graph.add_connection(PortID(3), PortID(1));
+
+        // make mediator
+        let mut med = RegionTransportationMediator::new(graph, vec![china]);
+
+        // make sure that number of people living in regions plus number in transit always stays same
+        let total = med.statistics.in_transit + med.statistics.region_population;
+        for _ in 0..=20 {
+            med.update();
+            assert_eq!(med.statistics.in_transit + med.statistics.region_population, total);
+        }
     }
 
     #[test]
+    /** Tests simulations where all transport connections occur only between different regions */
     fn test_mediator_inter_country_transport() {
-
-    }
-    #[test]
-    fn test_mediator_all_transport() {
         let config = load_config_data("src/countries.txt", "src/connections.txt").unwrap();
      
         // create mediator, add regions
-        let med = RegionTransportationMediator::new(config.graph, config.regions);
+        let mut med = RegionTransportationMediator::new(config.graph, config.regions);
+
+        // make sure that number of people living in regions plus number in transit always stays same
+        let total = med.statistics.in_transit + med.statistics.region_population;
+        for _ in 0..=20 {
+            med.update();
+            assert_eq!(med.statistics.in_transit + med.statistics.region_population, total);
+        }
+    }
+    #[test]
+    /** Tests simulations where both inter and intra country transport occurs */
+    fn test_mediator_all_transport() {
+        let config = load_config_data("src/countries.txt", "src/connections.txt").unwrap();
+
+        let mut graph = config.graph;
+        // add all possible connections, ignoring errors
+        for start_id in 0..=10 {
+            for end_id in 0..=10 {
+                let _ = graph.add_connection(PortID(start_id), PortID(end_id));
+            }
+        }
+
+        // create mediator, add regions
+        let mut med = RegionTransportationMediator::new(graph, config.regions);
+
+        // make sure that number of people living in regions plus number in transit always stays same
+        let total = med.statistics.in_transit + med.statistics.region_population;
+        for _ in 0..=20 {
+            med.update();
+            assert_eq!(med.statistics.in_transit + med.statistics.region_population, total);
+        }
     }
 }
 
