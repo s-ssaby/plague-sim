@@ -39,10 +39,9 @@ impl Population {
         self.dead + self.healthy + self.recovered + self.infected
     }
 
-    // Transports a subpopulation of people out of this population
-    // Modifies this population to match resulting population after transportation
+    // Calculates population resulting from removing a group from this population
     // Errors if group cannot be extracted from this population
-    pub fn emigrate(&mut self, group: Self) -> Result<(), String> {
+    pub fn emigrate(&mut self, group: Self) -> Result<Population, String> {
         if group.healthy > self.healthy {
             Err(format!("Cannot remove {} healthy people from {} healthy people", group.healthy, self.healthy))
         } else if group.dead > self.dead {
@@ -52,11 +51,11 @@ impl Population {
         } else if group.infected > self.infected {
             Err(format!("Cannot remove {} infected people from {} infected people", group.infected, self.infected))
         } else {
-            self.healthy -= group.healthy;
-            self.dead -= group.dead;
-            self.recovered -= group.recovered;
-            self.infected -= group.infected;
-            Ok(())
+            let new_healthy = self.healthy - group.healthy;
+            let new_dead = self.dead - group.dead;
+            let new_recovered = self.recovered - group.recovered;
+            let new_infected = self.infected - group.infected;
+            Ok(Population { healthy: new_healthy, infected: new_infected, dead: new_dead, recovered: new_recovered })
         }
     }
 }

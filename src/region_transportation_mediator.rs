@@ -99,7 +99,8 @@ impl RegionTransportationMediator {
             // calculate a possible transport job
             let job = allocator.calculate_transport(port, region, port_dests);
             match region.population.emigrate(job.population) {
-                Ok(_) => {
+                Ok(new_pop) => {
+                    region.population = new_pop;
                     // assume transportation takes 2 days
                     jobs.push(job)
                 },
