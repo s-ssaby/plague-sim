@@ -8,14 +8,14 @@ use crate::{population::Population, region::{Port, Region, RegionID}};
 /** - The population must be able to be extracted from the start region */
 /**     - For example, you cannot transport 2 infected individuals from a population of 50 healthy ones */
 pub trait TransportAllocator {
-    fn calculate_transport<'a>(start_port: &Port, start_region: &Region, destination_port_choices: impl IntoIterator<Item = &'a Port>) -> TransportJob;
+    fn calculate_transport<'a>(&self, start_port: &Port, start_region: &Region, destination_port_choices: Vec<&Port>) -> TransportJob;
 }
 
 /** */
 pub struct RandomTransportAllocator;
 
 impl TransportAllocator for RandomTransportAllocator {
-    fn calculate_transport<'a>(start_port: &Port, start_region: &Region, destination_port_choices: impl IntoIterator<Item = &'a Port>) -> TransportJob {
+    fn calculate_transport<'a>(&self, start_port: &Port, start_region: &Region, destination_port_choices: Vec<&Port>) -> TransportJob {
         todo!()
     }
 }

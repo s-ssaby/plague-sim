@@ -23,18 +23,19 @@ impl MediatorStatistics {
 pub struct RegionTransportationMediator {
     regions: HashMap<RegionID, Region>,
     port_graph: PortGraph,
+    allocator: Box<dyn TransportAllocator>,
     ongoing_transport: Vec<TransportJob>,
     pub statistics: MediatorStatistics
 }
 
 impl RegionTransportationMediator {
-    pub fn new(port_graph: PortGraph, regions: Vec<Region>) -> Self {
+    pub fn new(port_graph: PortGraph, regions: Vec<Region>, allocator: Box<dyn TransportAllocator>) -> Self {
         let mut region_map = HashMap::new();
         for region in regions {
             region_map.insert(region.id, region);
         }
         let total_pop = Self::calculate_regions_population(region_map.values());
-        Self { regions: region_map, port_graph, ongoing_transport: vec![], statistics: MediatorStatistics::new(total_pop)}
+        Self { regions: region_map, port_graph, ongoing_transport: vec![], statistics: MediatorStatistics::new(total_pop), allocator}
     }
 
     /** Calculates population contained in simulation's regions */
@@ -77,7 +78,7 @@ impl RegionTransportationMediator {
         let mut all_new_jobs: Vec<TransportJob> = vec![];
         // generate new jobs
         for region in self.regions.values_mut() {
-            let new_jobs = Self::calculate_transport_jobs(&self.port_graph, region);
+            let new_jobs = Self::calculate_transport_jobs(&self.port_graph, region, self.allocator.as_ref());
             all_new_jobs.extend(new_jobs);
         }
 
@@ -88,7 +89,7 @@ impl RegionTransportationMediator {
     }
 
     // calculate transport jobs for a region
-    fn calculate_transport_jobs(port_graph: &PortGraph, region: &mut Region) -> Vec<TransportJob> {
+    fn calculate_transport_jobs(port_graph: &PortGraph, region: &mut Region, allocator: &dyn TransportAllocator) -> Vec<TransportJob> {
         let mut jobs: Vec<TransportJob> = vec![];
         // look at each port
         for port in &region.ports {
@@ -96,7 +97,7 @@ impl RegionTransportationMediator {
             let port_dests = port_graph.get_dest_ports(port.id).unwrap();
 
             // calculate a possible transport job
-            let job = RandomTransportAllocator::calculate_transport(port, region, port_dests);
+            let job = allocator.calculate_transport(port, region, port_dests);
             match region.population.emigrate(job.population) {
                 Ok(_) => {
                     // assume transportation takes 2 days
@@ -113,7 +114,7 @@ impl RegionTransportationMediator {
 mod tests {
 
 
-    use crate::{config::load_config_data, region::{PortID, Region}, transportation_graph::PortGraph};
+    use crate::{config::load_config_data, region::{PortID, Region}, transportation_allocator::RandomTransportAllocator, transportation_graph::PortGraph};
 
     use super::RegionTransportationMediator;
 
@@ -140,7 +141,7 @@ mod tests {
         graph.add_connection(PortID(3), PortID(1));
 
         // make mediator
-        let mut med = RegionTransportationMediator::new(graph, vec![china]);
+        let mut med = RegionTransportationMediator::new(graph, vec![china], Box::new(RandomTransportAllocator));
 
         // make sure that number of people living in regions plus number in transit always stays same
         let total = med.statistics.in_transit + med.statistics.region_population;
@@ -156,7 +157,7 @@ mod tests {
         let config = load_config_data("src/countries.txt", "src/connections.txt").unwrap();
      
         // create mediator, add regions
-        let mut med = RegionTransportationMediator::new(config.graph, config.regions);
+        let mut med = RegionTransportationMediator::new(config.graph, config.regions, Box::new(RandomTransportAllocator));
 
         // make sure that number of people living in regions plus number in transit always stays same
         let total = med.statistics.in_transit + med.statistics.region_population;
@@ -179,7 +180,7 @@ mod tests {
         }
 
         // create mediator, add regions
-        let mut med = RegionTransportationMediator::new(graph, config.regions);
+        let mut med = RegionTransportationMediator::new(graph, config.regions, Box::new(RandomTransportAllocator));
 
         // make sure that number of people living in regions plus number in transit always stays same
         let total = med.statistics.in_transit + med.statistics.region_population;
