@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use std::{cell::RefCell, collections::HashMap, vec};
+use std::collections::HashMap;
 
 use crate::region::{Port, PortID};
 
@@ -8,12 +8,12 @@ use crate::region::{Port, PortID};
 
 struct PortNode {
     port: Port,
-    dests: RefCell<Vec<PortID>>
+    dests: Vec<PortID>
 }
 
 impl PortNode {
     pub fn new (port: Port) -> Self {
-        Self {port, dests: RefCell::new(vec![])}
+        Self {port, dests: vec![]}
     }
 }
 
@@ -54,6 +54,10 @@ impl PortGraph {
         self.port_nodes.values().find(|node| node.port.id == id)
     }
 
+    fn get_mut_node(&mut self, id: PortID) -> Option<&mut PortNode> {
+        self.port_nodes.values_mut().find(|node| node.port.id == id)
+    }
+
     pub fn get_port(&self, id: PortID) -> Option<&Port> {
         let node = self.port_nodes.values().find(|node| node.port.id == id);
         match node {
@@ -73,7 +77,7 @@ impl PortGraph {
             let mut dests: Vec<&Port> = vec![];
             let node = self.get_node(id);
             if let Some(node) = node {
-                for p_id in node.dests.borrow().iter() {
+                for p_id in node.dests.iter() {
                     // find port
                     dests.push(self.get_port(*p_id).unwrap());
                 }
@@ -98,17 +102,17 @@ impl PortGraph {
     }
 
     // Directed
-    pub fn add_connection(&self, start: PortID, end: PortID) -> Result<(), String> {
+    pub fn add_connection(&mut self, start: PortID, end: PortID) -> Result<(), String> {
         // check if both IDs exist in graph
         if !self.in_graph(start) || !self.in_graph(end) {
             Err(format!("At least one Port ID of {} or {} doesn't exist in graph", start.0, end.0).to_owned())
         } else {
-            let start_node = self.get_node(start).unwrap();
+            let start_node: &mut PortNode = self.get_mut_node(start).unwrap();
             // make sure connection doesn't already exist
-            if start_node.dests.borrow().iter().any(|id| *id == end) {
+            if start_node.dests.iter().any(|id| *id == end) {
                 Err(format!("Connection betweem start ID {} and end ID {} already exists in graph", start.0, end.0))
             } else {
-                start_node.dests.borrow_mut().push(end);
+                start_node.dests.push(end);
                 Ok(())
             }
         }
