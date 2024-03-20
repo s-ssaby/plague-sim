@@ -8,12 +8,12 @@ pub struct MediatorStatistics {
     /** Total population currently in transit */
     pub in_transit: Population,
     /** Total population living in regions */
-    pub total_population: Population
+    pub region_population: Population
 }
 
 impl MediatorStatistics {
-    fn new (total_population: Population) -> Self {
-        Self { in_transit: Population::new(0), total_population }
+    fn new (region_population: Population) -> Self {
+        Self { in_transit: Population::new(0), region_population }
     }
 }
 
@@ -39,17 +39,18 @@ impl RegionTransportationMediator {
 
     /** Calculates population contained in simulation's regions */
     fn calculate_regions_population <'a> (regions: impl Iterator<Item = &'a Region>) -> Population {
-        unimplemented!()
+        regions.map(|reg| reg.population).fold(Population::new(0), |acc, pop| acc + pop)
     }
 
     /** Calculates population currently in transit */
-    fn calculate_transit_population(jobs: Vec<TransportJob>) -> Population {
-        unimplemented!()
+    fn calculate_transit_population <'a> (jobs: impl Iterator<Item = &'a TransportJob>) -> Population {
+        jobs.map(|job| job.population).fold(Population::new(0), |acc, pop| acc + pop)
     }
 
     /** Updates statistics of simulation to reflect current state */
     fn update_statistics(&mut self) {
-        unimplemented!()
+        self.statistics.in_transit = Self::calculate_transit_population(self.ongoing_transport.iter());
+        self.statistics.region_population = Self::calculate_regions_population(self.regions.values());
     }
 
     // create interactions between regions for each region
