@@ -5,13 +5,15 @@ use crate::{population::Population, region::{Region, RegionID}, transportation_g
 
 /** Stores data not necessary for mediator's functioning, but may be useful for clients */
 pub struct MediatorStatistics {
-    /** Number of people currently in transit */
-    pub in_transit: u32
+    /** Total population currently in transit */
+    pub in_transit: Population,
+    /** Total population living in regions */
+    pub total_population: Population
 }
 
 impl MediatorStatistics {
-    fn new () -> Self {
-        Self { in_transit: 0 }
+    fn new (total_population: Population) -> Self {
+        Self { in_transit: Population::new(0), total_population }
     }
 }
 
@@ -31,7 +33,23 @@ impl RegionTransportationMediator {
         for region in regions {
             region_map.insert(region.id, region);
         }
-        Self { regions: region_map, port_graph, ongoing_transport: vec![], statistics: MediatorStatistics::new()}
+        let total_pop = Self::calculate_regions_population(region_map.values());
+        Self { regions: region_map, port_graph, ongoing_transport: vec![], statistics: MediatorStatistics::new(total_pop)}
+    }
+
+    /** Calculates population contained in simulation's regions */
+    fn calculate_regions_population <'a> (regions: impl Iterator<Item = &'a Region>) -> Population {
+        unimplemented!()
+    }
+
+    /** Calculates population currently in transit */
+    fn calculate_transit_population(jobs: Vec<TransportJob>) -> Population {
+        unimplemented!()
+    }
+
+    /** Updates statistics of simulation to reflect current state */
+    fn update_statistics(&mut self) {
+        unimplemented!()
     }
 
     // create interactions between regions for each region
@@ -65,11 +83,7 @@ impl RegionTransportationMediator {
         self.ongoing_transport.extend(all_new_jobs);
 
         // update stats
-        let mut total = 0;
-        for job in &self.ongoing_transport {
-            total += job.population.infected + job.population.dead + job.population.recovered + job.population.healthy;
-        }
-        self.statistics.in_transit = total;
+        self.update_statistics()
     }
 
     // calculate transport jobs for a region
