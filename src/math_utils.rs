@@ -2,11 +2,11 @@
 
 
 // generate a random float from 0 to 1 (noninclusive)
-fn get_random() -> f64 {
+pub fn get_random() -> f64 {
     fastrand::f64()
 }
 
-fn pick_random<I>(collection: I) -> Option<<I as IntoIterator>::Item> where I: IntoIterator , <I as IntoIterator>::IntoIter: ExactSizeIterator{
+pub fn pick_random<I>(collection: I) -> Option<<I as IntoIterator>::Item> where I: IntoIterator , <I as IntoIterator>::IntoIter: ExactSizeIterator{
    fastrand::choice(collection)
 }
 
