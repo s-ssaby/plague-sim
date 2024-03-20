@@ -47,7 +47,7 @@ impl PortGraph {
     }
 
     pub fn in_graph(&self, id: PortID) -> bool {
-        self.get_port(id).is_some()
+        self.port_nodes.contains_key(&id)
     }
 
     fn get_node(&self, id: PortID) -> Option<&PortNode> {
