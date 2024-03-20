@@ -35,10 +35,15 @@ impl PortGraph {
         self.port_nodes.values().map(|node| &node.port).collect()
     }
 
-    pub fn add_port(&mut self, port: Port) {
+    pub fn add_port(&mut self, port: Port) -> Result<(), String> {
         let id = port.id;
-        let node = PortNode::new(port);
-        self.port_nodes.insert(id, node);
+        if self.in_graph(id) {
+            Err(format!("Port with ID: {} already in graph", id.0))
+        } else {
+            let node = PortNode::new(port);
+            self.port_nodes.insert(id, node);
+            Ok(())
+        }
     }
 
     pub fn in_graph(&self, id: PortID) -> bool {
@@ -99,8 +104,13 @@ impl PortGraph {
             Err(format!("At least one Port ID of {} or {} doesn't exist in graph", start.0, end.0).to_owned())
         } else {
             let start_node = self.get_node(start).unwrap();
-            start_node.dests.borrow_mut().push(end);
-            Ok(())
+            // make sure connection doesn't already exist
+            if start_node.dests.borrow().iter().any(|id| *id == end) {
+                Err(format!("Connection betweem start ID {} and end ID {} already exists in graph", start.0, end.0))
+            } else {
+                start_node.dests.borrow_mut().push(end);
+                Ok(())
+            }
         }
     }
 
@@ -187,6 +197,18 @@ mod tests {
                 graph.add_connection(eu_port.id, am_port.id);
             }
         }
+
+        // try adding same connection again
+        assert!(graph.add_connection(PortID(2), PortID(0)).is_err());
+        assert!(graph.add_connection(PortID(2), PortID(0)).is_err());
+        assert!(graph.add_connection(PortID(3), PortID(0)).is_err());
+        assert!(graph.add_connection(PortID(4), PortID(0)).is_err());
+        assert!(graph.add_connection(PortID(5), PortID(0)).is_err());
+
+        // try adding nonsense connections
+        assert!(graph.add_connection(PortID(55), PortID(0)).is_err());
+        assert!(graph.add_connection(PortID(0), PortID(59)).is_err());
+        assert!(graph.add_connection(PortID(509), PortID(99)).is_err());
 
         // Europeans can travel now, but not Americans
         assert_eq!(graph.get_dest_ports(PortID(0)), Some(vec![]));
