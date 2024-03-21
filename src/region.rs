@@ -2,7 +2,7 @@
 
 use std::sync::atomic::AtomicU32;
 
-use crate::{population::Population};
+use crate::{location::Location, population::Population};
 
 
 
@@ -22,7 +22,7 @@ impl PortID {
 /** Represents a specific site of travel, such as an airport/seaport */
 /** Should only be constructed using an associated region */
 #[derive(Debug, Clone, PartialEq)]
-pub struct Port {
+pub struct Port<T> where T: Location {
     // maximum amount of transportation 
     pub capacity: u32,
     // whether port is operating or not
@@ -30,14 +30,16 @@ pub struct Port {
     // ID of region this port is in
     pub region: RegionID,
     // ID of this port
-    pub id: PortID
+    pub id: PortID,
+    // Position of this port
+    pub pos: T
 }
 
-impl Port {
+impl<T> Port<T> where T: Location {
     /** Creates a new open port capable of transporting specified capacity */
     /** Users of Port must ensure that all Ports they create have unique IDs to avoid unwanted behavior */
-    fn new(id: PortID, region: RegionID, capacity: u32) -> Self {
-        Self {capacity, closed: RefCell::new(false), region, id }
+    fn new(id: PortID, region: RegionID, capacity: u32, pos: T) -> Self {
+        Self {capacity, closed: RefCell::new(false), region, id, pos}
     }
 
     pub fn close_port(&self) {
@@ -69,11 +71,11 @@ impl RegionID {
 
 /** Represents a region of the world with a human population */
 #[derive(Debug, Clone, PartialEq)]
-pub struct Region {
+pub struct Region<T> where T: Location {
     pub id: RegionID,
     pub name: String,
     pub population: Population,
-    pub ports: Vec<Port>
+    pub ports: Vec<Port<T>>
 }
 
 // impl TryFrom<RegionBuilder> for Region {
@@ -91,7 +93,7 @@ pub struct Region {
 //     }
 // }
 
-impl Region {
+impl<T> Region <T> where T: Location {
     /** Creates region of healthy people */
     pub fn new(name: String, initial_pop: u32) -> Self {
         let id = RegionID::new();
@@ -99,21 +101,21 @@ impl Region {
     }
 
     /** Creates region of people with specified population distribution */
-    pub fn new_custom(name: String, initial_pop: Population, mut ports: Vec<Port>) -> Self {
+    pub fn new_custom(name: String, initial_pop: Population, mut ports: Vec<Port<T>>) -> Self {
         let id = RegionID::new();
         Region {name, population: initial_pop, ports, id }
     }
 
     /** Adds port to Region and returns a copy */
-    pub fn add_port(&mut self, port_id: PortID, capacity: u32) -> Port {
-        let port = Port::new(port_id, self.id, capacity);
+    pub fn add_port(&mut self, port_id: PortID, capacity: u32, pos: T) -> Port<T> {
+        let port = Port::new(port_id, self.id, capacity, pos);
         let clone = port.clone();
         self.ports.push(port);
         clone
     }  
 
     /** Retrieves reference to port if it exists in Region */
-    pub fn get_port(&self, id: PortID) -> Option<&Port> {
+    pub fn get_port(&self, id: PortID) -> Option<&Port<T>> {
         self.ports.iter().find(|port| port.id == id)
     }
 
@@ -127,7 +129,7 @@ impl Region {
 
 #[cfg(test)]
 mod tests {
-    use crate::{population::Population, region::{Port, PortID}};
+    use crate::{location::Point2D, population::Population, region::{Port, PortID}};
 
     use super::{Region};
     
@@ -135,8 +137,8 @@ mod tests {
     #[test]
     fn region_find_port_test() {
         let mut country = Region::new("Super".to_owned(), 100);
-        let small_port = country.add_port(PortID(0), 100);
-        let big_port = country.add_port(PortID(1), 1000);
+        let small_port = country.add_port(PortID(0), 100, Point2D::default());
+        let big_port = country.add_port(PortID(1), 1000, Point2D::default());
 
         assert!(country.get_port(PortID::new(0)).is_some());
         assert!(country.get_port(PortID::new(1)).is_some());
@@ -149,9 +151,9 @@ mod tests {
         let mut country = Region::new("Super".to_owned(), 100);
         let mut big_country = Region::new("Mega".to_owned(), 1_000_000);
 
-        let small_port = country.add_port(PortID::new(0), 100);
-        let big_port = country.add_port(PortID::new(1), 1000);
-        let huge_port = big_country.add_port(PortID::new(2), 10_000_000);
+        let small_port = country.add_port(PortID::new(0), 100, Point2D::default());
+        let big_port = country.add_port(PortID::new(1), 1000, Point2D::default());
+        let huge_port = big_country.add_port(PortID::new(2), 10_000_000, Point2D::default());
 
 
         // make sure countries have unique ID

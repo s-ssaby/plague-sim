@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{population::Population, region::{Region, RegionID}, transportation_allocator::{RandomTransportAllocator, TransportAllocator, TransportJob}, transportation_graph::PortGraph};
+use crate::{location::Location, population::Population, region::{Region, RegionID}, transportation_allocator::{RandomTransportAllocator, TransportAllocator, TransportJob}, transportation_graph::PortGraph};
 
 
 /** Stores data not necessary for mediator's functioning, but may be useful for clients */
@@ -20,16 +20,16 @@ impl MediatorStatistics {
 // Controls transportation interactions between the regions it possesses
 /** Assumes that every port in provided port graph belongs to a region */
 /** Once regions added, cannot add more or take away */
-pub struct RegionTransportationMediator<T> where T: TransportAllocator{
-    regions: HashMap<RegionID, Region>,
-    port_graph: PortGraph,
+pub struct RegionTransportationMediator<A, T> where A: Location, T: TransportAllocator<A>{
+    regions: HashMap<RegionID, Region<A>>,
+    port_graph: PortGraph<A>,
     allocator: T,
     ongoing_transport: Vec<TransportJob>,
     pub statistics: MediatorStatistics
 }
 
-impl<T: TransportAllocator> RegionTransportationMediator<T> {
-    pub fn new(port_graph: PortGraph, regions: Vec<Region>, allocator: T) -> Self {
+impl<'a, A: Location + 'a, T: TransportAllocator<A>> RegionTransportationMediator<A, T> {
+    pub fn new(port_graph: PortGraph<A>, regions: Vec<Region<A>>, allocator: T) -> Self {
         let mut region_map = HashMap::new();
         for region in regions {
             region_map.insert(region.id, region);
@@ -39,12 +39,12 @@ impl<T: TransportAllocator> RegionTransportationMediator<T> {
     }
 
     /** Calculates population contained in simulation's regions */
-    fn calculate_regions_population <'a> (regions: impl Iterator<Item = &'a Region>) -> Population {
+    fn calculate_regions_population (regions: impl Iterator<Item = &'a Region<A>>) -> Population {
         regions.map(|reg| reg.population).fold(Population::new(0), |acc, pop| acc + pop)
     }
 
     /** Calculates population currently in transit */
-    fn calculate_transit_population <'a> (jobs: impl Iterator<Item = &'a TransportJob>) -> Population {
+    fn calculate_transit_population (jobs: impl Iterator<Item = &'a TransportJob>) -> Population {
         jobs.map(|job| job.population).fold(Population::new(0), |acc, pop| acc + pop)
     }
 
@@ -89,7 +89,7 @@ impl<T: TransportAllocator> RegionTransportationMediator<T> {
     }
 
     // calculate transport jobs for a region
-    fn calculate_transport_jobs(port_graph: &PortGraph, region: &mut Region, allocator: &T) -> Vec<TransportJob> {
+    fn calculate_transport_jobs(port_graph: &PortGraph<A>, region: &mut Region<A>, allocator: &T) -> Vec<TransportJob> {
         let mut jobs: Vec<TransportJob> = vec![];
         // look at each port
         for port in &region.ports {
@@ -117,7 +117,7 @@ impl<T: TransportAllocator> RegionTransportationMediator<T> {
 mod tests {
 
 
-    use crate::{config::load_config_data, region::{PortID, Region}, transportation_allocator::RandomTransportAllocator, transportation_graph::PortGraph};
+    use crate::{config::{load_config_data, ConfigData}, location::Point2D, region::{PortID, Region}, transportation_allocator::RandomTransportAllocator, transportation_graph::PortGraph};
 
     use super::RegionTransportationMediator;
 
@@ -126,10 +126,10 @@ mod tests {
     fn test_mediator_intra_country_transport() {
         let china_pop = 5000;
         let mut china = Region::new("China".to_owned(), china_pop);
-        let port1 = china.add_port(PortID(1), 100);
-        let port2 = china.add_port(PortID(2), 200);
-        let port3 = china.add_port(PortID(3), 500);
-        let port4 = china.add_port(PortID(4), 50);
+        let port1 = china.add_port(PortID(1), 100, Point2D::default());
+        let port2 = china.add_port(PortID(2), 200, Point2D::default());
+        let port3 = china.add_port(PortID(3), 500, Point2D::default());
+        let port4 = china.add_port(PortID(4), 50, Point2D::default());
 
         let mut graph = PortGraph::new();
         graph.add_port(port1);
@@ -144,7 +144,7 @@ mod tests {
         graph.add_connection(PortID(3), PortID(1));
 
         // make mediator
-        let mut med: RegionTransportationMediator<RandomTransportAllocator> = RegionTransportationMediator::new(graph, vec![china], RandomTransportAllocator);
+        let mut med: RegionTransportationMediator<Point2D, RandomTransportAllocator> = RegionTransportationMediator::new(graph, vec![china], RandomTransportAllocator);
 
         // make sure that number of people living in regions plus number in transit always stays same
         let total = med.statistics.in_transit + med.statistics.region_population;
@@ -160,7 +160,7 @@ mod tests {
         let config = load_config_data("src/countries.txt", "src/connections.txt").unwrap();
      
         // create mediator, add regions
-        let mut med: RegionTransportationMediator<RandomTransportAllocator> = RegionTransportationMediator::new(config.graph, config.regions, RandomTransportAllocator);
+        let mut med: RegionTransportationMediator<Point2D, RandomTransportAllocator> = RegionTransportationMediator::new(config.graph, config.regions, RandomTransportAllocator);
 
         // make sure that number of people living in regions plus number in transit always stays same
         let total = med.statistics.in_transit + med.statistics.region_population;
@@ -172,7 +172,7 @@ mod tests {
     #[test]
     /** Tests simulations where both inter and intra country transport occurs */
     fn test_mediator_all_transport() {
-        let config = load_config_data("src/countries.txt", "src/connections.txt").unwrap();
+        let config: ConfigData<Point2D> = load_config_data("src/countries.txt", "src/connections.txt").unwrap();
 
         let mut graph = config.graph;
         // add all possible connections, ignoring errors
@@ -183,7 +183,7 @@ mod tests {
         }
 
         // create mediator, add regions
-        let mut med: RegionTransportationMediator<RandomTransportAllocator> = RegionTransportationMediator::new(graph, config.regions, RandomTransportAllocator);
+        let mut med: RegionTransportationMediator<Point2D, RandomTransportAllocator> = RegionTransportationMediator::new(graph, config.regions, RandomTransportAllocator);
 
         // make sure that number of people living in regions plus number in transit always stays same
         let total = med.statistics.in_transit + med.statistics.region_population;

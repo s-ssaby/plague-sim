@@ -3,11 +3,11 @@
 
 /// Represents a way to think of locations in the world
 /// Requires distance to be implemented to represent distances between instances of location
-pub trait Location {
+pub trait Location : Clone {
     fn distance(first: Self, second: Self) -> f64;
 }
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Point2D {
     pub x: f64,
     pub y: f64
