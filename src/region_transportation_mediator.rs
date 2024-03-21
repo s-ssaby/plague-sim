@@ -157,7 +157,7 @@ mod tests {
     #[test]
     /** Tests simulations where all transport connections occur only between different regions */
     fn test_mediator_inter_country_transport() {
-        let config = load_config_data("src/countries.txt", "src/connections.txt").unwrap();
+        let config = load_config_data("test_data/data.json").unwrap();
      
         // create mediator, add regions
         let mut med: RegionTransportationMediator<Point2D, RandomTransportAllocator> = RegionTransportationMediator::new(config.graph, config.regions, RandomTransportAllocator);
@@ -172,7 +172,7 @@ mod tests {
     #[test]
     /** Tests simulations where both inter and intra country transport occurs */
     fn test_mediator_all_transport() {
-        let config: ConfigData<Point2D> = load_config_data("src/countries.txt", "src/connections.txt").unwrap();
+        let config: ConfigData<Point2D> = load_config_data("test_data/data.json").unwrap();
 
         let mut graph = config.graph;
         // add all possible connections, ignoring errors
