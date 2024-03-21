@@ -69,7 +69,7 @@ impl Population {
 
     // Calculates population resulting from removing a group from this population
     // Errors if group cannot be extracted from this population
-    pub fn emigrate(&mut self, group: Self) -> Result<Population, String> {
+    pub fn emigrate(&self, group: Self) -> Result<Population, String> {
         if group.healthy > self.healthy {
             Err(format!("Cannot remove {} healthy people from {} healthy people", group.healthy, self.healthy))
         } else if group.dead > self.dead {
