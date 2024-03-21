@@ -2,6 +2,8 @@ use std::ops::Add;
 
 use serde::{Deserialize, Serialize};
 
+use crate::math_utils::get_random;
+
 #[derive(Debug, Clone, Default, PartialEq, Copy, Serialize, Deserialize)]
 /** Represents any group of people */
 pub struct Population {
@@ -26,8 +28,23 @@ impl Add for Population {
 
 impl Population {
     /* Creates a population of healthy people */
-    pub fn new (initial_pop: u32) -> Self{
+    pub fn new (initial_pop: u32) -> Self {
         Self {healthy: initial_pop, dead: 0, recovered: 0, infected: 0}
+    }
+
+    /* Create a population with a certain size, but random proportions of infected, healthy, etc. */
+    pub fn new_random(size: u32) -> Self {
+        let mut remaining_amount = size;
+        let healthy = (((remaining_amount + 1) as f64)*get_random()) as u32;
+        remaining_amount -= healthy;
+        let dead = (((remaining_amount + 1) as f64)*get_random()) as u32;
+        remaining_amount -= dead;
+        let infected = (((remaining_amount + 1) as f64)*get_random()) as u32;
+        remaining_amount -= infected;
+        let recovered = remaining_amount;
+        debug_assert!(healthy + dead + recovered + infected == size, "{}", 
+        format!("Healthy: {} Infected: {} Dead: {} Recovered: {} does not make up a population of size {}", healthy, infected, dead, recovered, size));
+        Self {healthy, dead, infected, recovered}
     }
 
     /// Creates a new population by scaling this population by a scalar factor
@@ -114,5 +131,17 @@ mod tests {
         let trisected_population = population.scale(0.333333);
         let expected_population = Population {healthy: 50, infected: 25, dead: 37, recovered: 1};
         assert_eq!(trisected_population, expected_population);
+    }
+
+    #[test]
+    fn new_random() {
+        let initial_sizes: [u32; 9] = [0, 1, 3, 50, 100, 700, 15000, 8300000, 4_000_000_000];
+        for size in initial_sizes {
+            // generate 30 random populations, check if they are all valid
+            for _ in 0..30 {
+                let random_pop = Population::new_random(size);
+                assert_eq!(random_pop.get_total(), size);
+            }
+        }
     }
 }
