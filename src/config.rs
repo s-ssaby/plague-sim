@@ -31,7 +31,7 @@ mod tests {
 
     #[test]
     fn test_config() {
-        let config_data = load_config_data("data.json");
+        let config_data = load_config_data("test_data/data.json");
         assert!(config_data.is_ok());
         let config_data: ConfigData<Point2D> = config_data.unwrap();
         let graph = config_data.graph;
