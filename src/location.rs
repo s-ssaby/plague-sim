@@ -12,6 +12,12 @@ pub struct Point2D {
     pub y: f64
 }
 
+impl Point2D {
+    pub fn new (x: f64, y: f64) -> Self {
+        Self {x, y}
+    }
+}
+
 impl Location for Point2D {
     fn distance(first: Self, second: Self) -> f64 {
         f64::sqrt((first.x - second.x)*(first.x - second.x) + (first.y - second.y)*(first.y - second.y))
