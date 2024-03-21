@@ -8,6 +8,7 @@ pub mod region_transportation_mediator;
 pub mod config;
 pub mod transportation_allocator;
 pub mod math_utils;
+pub mod location;
 
 
 #[cfg(test)]
