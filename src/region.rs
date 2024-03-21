@@ -72,7 +72,7 @@ impl RegionID {
 }
 
 /** Represents a region of the world with a human population */
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Region<T> where T: Location {
     pub id: RegionID,
     pub name: String,

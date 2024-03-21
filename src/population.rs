@@ -1,6 +1,8 @@
 use std::ops::Add;
 
-#[derive(Debug, Clone, Default, PartialEq, Copy)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Default, PartialEq, Copy, Serialize, Deserialize)]
 /** Represents any group of people */
 pub struct Population {
     pub healthy: u32,

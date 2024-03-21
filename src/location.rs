@@ -1,3 +1,5 @@
+use serde::{Deserialize, Serialize};
+
 /// Responsible for dealing with locations
 
 
@@ -7,7 +9,7 @@ pub trait Location : Clone {
     fn distance(first: Self, second: Self) -> f64;
 }
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, PartialOrd)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Point2D {
     pub x: f64,
     pub y: f64
