@@ -56,7 +56,7 @@ pub struct TransportJob {
 
 #[cfg(test)]
 mod test {
-    use crate::{location::Point2D, region::{PortID, Region}};
+    use crate::{location::Point2D, population::Population, region::{PortID, Region}};
 
     use super::{RandomTransportAllocator, TransportAllocator};
 
@@ -64,10 +64,12 @@ mod test {
     #[test]
     fn random_transport_allocator() {
         let mut brazil: Region<Point2D> = Region::new("Brazil".to_owned(), 50000);
+        brazil.population = Population::new_random(50000);
         let braz_port = brazil.add_port(PortID(0), 500, Point2D::new(0.0, 0.0));
 
         let mut benin: Region<Point2D> = Region::new("Benin".to_owned(), 30000);
         let benin_port = benin.add_port(PortID(1), 500, Point2D::new(10.0, 2.0));
+        benin.population = Population::new_random(30000);
 
         let random_alloc = RandomTransportAllocator;
         // Repeat process 30 times to prevent chance of test passing by fluke
