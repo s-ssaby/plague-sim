@@ -7,6 +7,7 @@ pub trait Location {
     fn distance(first: Self, second: Self) -> f64;
 }
 
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Point2D {
     pub x: f64,
     pub y: f64
