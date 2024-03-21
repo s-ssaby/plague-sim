@@ -17,3 +17,9 @@ path = "src/lib.rs"
 [[bin]]
 name = "mybin"
 path = "src/bin.rs"
+
+[dev-dependencies]
+
+[[example]]
+name = "2d-plague-sim"
+path = "examples/2d-plague-sim/main.rs"
