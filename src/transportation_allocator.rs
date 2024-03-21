@@ -9,7 +9,7 @@ use crate::{location::Location, math_utils::{get_random, pick_random}, populatio
 /** - The population must be able to be extracted from the start region */
 /**     - For example, you cannot transport 2 infected individuals from a population of 50 healthy ones */
 pub trait TransportAllocator<T> where T: Location {
-    fn calculate_transport<'a>(&self, start_port: &Port<T>, start_region: &Region<T>, destination_port_choices: Vec<&Port<T>>) -> Option<TransportJob>;
+    fn calculate_transport<'a>(&self, start_port: &Port<T>, start_region: &Region<T>, destination_port_choices: Vec<&Port<T>>) -> Vec<TransportJob>;
 }
 
 /** Randomly choose a port to travel to, and transport a random number of people up to the starting port's capacity */
@@ -19,31 +19,34 @@ pub trait TransportAllocator<T> where T: Location {
 pub struct RandomTransportAllocator;
 
 impl<T: Location> TransportAllocator <T> for RandomTransportAllocator {
-    fn calculate_transport<'a>(&self, start_port: &Port<T>, start_region: &Region<T>, destination_port_choices: Vec<&Port<T>>) -> Option<TransportJob> {
+    fn calculate_transport<'a>(&self, start_port: &Port<T>, start_region: &Region<T>, destination_port_choices: Vec<&Port<T>>) -> Vec<TransportJob> {
         let random_dest = pick_random(destination_port_choices);
-        random_dest.map(|dest| {
-            let random_pop = ((start_port.capacity + 1) as f64*get_random()) as u32;
-            let mut transported_population: Population = Population::new(0);
-            // transport entire population
-            if random_pop >= start_region.population.get_total() {
-                transported_population = start_region.population;
-            } 
-            // transport only portion
-            else {
-                let scale_factor = (random_pop as f64)/(start_region.population.get_total() as f64);
-                transported_population = start_region.population.scale(scale_factor);
-            }
-            debug_assert!(transported_population.healthy <= start_region.population.healthy, "{}", 
-            format!("Unable to remove {} healthy from {} healthy", transported_population.healthy, start_region.population.healthy));
-            debug_assert!(transported_population.dead <= start_region.population.dead, "{}", 
-            format!("Unable to remove {} dead from {} dead", transported_population.dead, start_region.population.dead));
-            debug_assert!(transported_population.infected <= start_region.population.infected, "{}", 
-            format!("Unable to remove {} infected from {} infected", transported_population.infected, start_region.population.infected));
-            debug_assert!(transported_population.recovered <= start_region.population.recovered, "{}", 
-            format!("Unable to remove {} recovered from {} recovered", transported_population.recovered, start_region.population.recovered));
-            // TODO! Change time calculation later
-            TransportJob {start_region: start_region.id, end_region: dest.region, population: transported_population, time: 5}
-        })
+        match random_dest {
+            Some(dest) => {
+                let random_pop = ((start_port.capacity + 1) as f64*get_random()) as u32;
+                let mut transported_population: Population = Population::new(0);
+                // transport entire population
+                if random_pop >= start_region.population.get_total() {
+                    transported_population = start_region.population;
+                } 
+                // transport only portion
+                else {
+                    let scale_factor = (random_pop as f64)/(start_region.population.get_total() as f64);
+                    transported_population = start_region.population.scale(scale_factor);
+                }
+                debug_assert!(transported_population.healthy <= start_region.population.healthy, "{}", 
+                format!("Unable to remove {} healthy from {} healthy", transported_population.healthy, start_region.population.healthy));
+                debug_assert!(transported_population.dead <= start_region.population.dead, "{}", 
+                format!("Unable to remove {} dead from {} dead", transported_population.dead, start_region.population.dead));
+                debug_assert!(transported_population.infected <= start_region.population.infected, "{}", 
+                format!("Unable to remove {} infected from {} infected", transported_population.infected, start_region.population.infected));
+                debug_assert!(transported_population.recovered <= start_region.population.recovered, "{}", 
+                format!("Unable to remove {} recovered from {} recovered", transported_population.recovered, start_region.population.recovered));
+                // TODO! Change time calculation later
+                vec![TransportJob {start_region: start_region.id, end_region: dest.region, population: transported_population, time: 5}]
+            },
+            None => vec![],
+        }
     }
 }
 
@@ -75,12 +78,14 @@ mod test {
         // Repeat process 30 times to prevent chance of test passing by fluke
         for i in 0..=30 {
             let brazil_curr_pop = brazil.population;
-            let brasil_to_benin_job = random_alloc.calculate_transport(&braz_port, &brazil, vec![&benin_port]).unwrap();
+            let brasil_to_benin_jobs = random_alloc.calculate_transport(&braz_port, &brazil, vec![&benin_port]);
 
             // try to transport
-            let transport_pop = brasil_to_benin_job.population;
-            let result = brazil_curr_pop.emigrate(transport_pop);
-            assert!(&result.is_ok(), "{}", format!("Error on update {}: {}", i + 1, result.err().unwrap()));
+            for job in brasil_to_benin_jobs {
+                let transport_pop = job.population;
+                let result = brazil_curr_pop.emigrate(transport_pop);
+                assert!(&result.is_ok(), "{}", format!("Error on update {}: {}", i + 1, result.err().unwrap()));
+            }
         }
 
 

@@ -90,26 +90,26 @@ impl<'a, A: Location + 'a, T: TransportAllocator<A>> RegionTransportationMediato
 
     // calculate transport jobs for a region
     fn calculate_transport_jobs(port_graph: &PortGraph<A>, region: &mut Region<A>, allocator: &T) -> Vec<TransportJob> {
-        let mut jobs: Vec<TransportJob> = vec![];
+        let mut new_jobs: Vec<TransportJob> = vec![];
         // look at each port
         for port in &region.ports {
             // where can each port go to?
             let port_dests = port_graph.get_dest_ports(port.id).unwrap();
 
-            // calculate a possible transport job
-            let job = allocator.calculate_transport(port, region, port_dests);
-            if let Some(some_job) = job {
-                match region.population.emigrate(some_job.population) {
+            // calculate transport jobs
+            let calculated_jobs = allocator.calculate_transport(port, region, port_dests);
+            for job in calculated_jobs {
+                match region.population.emigrate(job.population) {
                     Ok(new_pop) => {
                         region.population = new_pop;
                         // assume transportation takes 2 days
-                        jobs.push(some_job)
+                        new_jobs.push(job)
                     },
                     Err(e) => panic!("{}", e),
                 }
             }
         }
-        jobs
+        new_jobs
     }
 }
 
