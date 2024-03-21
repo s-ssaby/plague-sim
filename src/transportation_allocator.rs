@@ -23,8 +23,24 @@ impl<T: Location> TransportAllocator <T> for RandomTransportAllocator {
         let random_dest = pick_random(destination_port_choices);
         random_dest.map(|dest| {
             let random_pop = ((start_port.capacity + 1) as f64*get_random()) as u32;
-            let scale_factor = (random_pop as f64)/(start_region.population.get_total() as f64);
-            let transported_population = start_region.population.scale(scale_factor); 
+            let mut transported_population: Population = Population::new(0);
+            // transport entire population
+            if random_pop >= start_region.population.get_total() {
+                transported_population = start_region.population;
+            } 
+            // transport only portion
+            else {
+                let scale_factor = (random_pop as f64)/(start_region.population.get_total() as f64);
+                transported_population = start_region.population.scale(scale_factor);
+            }
+            debug_assert!(transported_population.healthy <= start_region.population.healthy, "{}", 
+            format!("Unable to remove {} healthy from {} healthy", transported_population.healthy, start_region.population.healthy));
+            debug_assert!(transported_population.dead <= start_region.population.dead, "{}", 
+            format!("Unable to remove {} dead from {} dead", transported_population.dead, start_region.population.dead));
+            debug_assert!(transported_population.infected <= start_region.population.infected, "{}", 
+            format!("Unable to remove {} infected from {} infected", transported_population.infected, start_region.population.infected));
+            debug_assert!(transported_population.recovered <= start_region.population.recovered, "{}", 
+            format!("Unable to remove {} recovered from {} recovered", transported_population.recovered, start_region.population.recovered));
             // TODO! Change time calculation later
             TransportJob {start_region: start_region.id, end_region: dest.region, population: transported_population, time: 5}
         })
@@ -36,4 +52,35 @@ pub struct TransportJob {
     pub end_region: RegionID,
     pub population: Population,
     pub time: u32
+}
+
+#[cfg(test)]
+mod test {
+    use crate::{location::Point2D, region::{PortID, Region}};
+
+    use super::{RandomTransportAllocator, TransportAllocator};
+
+    /** This test may pass or fail by random chance */
+    #[test]
+    fn random_transport_allocator() {
+        let mut brazil: Region<Point2D> = Region::new("Brazil".to_owned(), 50000);
+        let braz_port = brazil.add_port(PortID(0), 500, Point2D::new(0.0, 0.0));
+
+        let mut benin: Region<Point2D> = Region::new("Benin".to_owned(), 30000);
+        let benin_port = benin.add_port(PortID(1), 500, Point2D::new(10.0, 2.0));
+
+        let random_alloc = RandomTransportAllocator;
+        // Repeat process 30 times to prevent chance of test passing by fluke
+        for i in 0..=30 {
+            let brazil_curr_pop = brazil.population;
+            let brasil_to_benin_job = random_alloc.calculate_transport(&braz_port, &brazil, vec![&benin_port]).unwrap();
+
+            // try to transport
+            let transport_pop = brasil_to_benin_job.population;
+            let result = brazil_curr_pop.emigrate(transport_pop);
+            assert!(&result.is_ok(), "{}", format!("Error on update {}: {}", i + 1, result.err().unwrap()));
+        }
+
+
+    }
 }
