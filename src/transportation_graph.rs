@@ -2,10 +2,13 @@
 
 use std::collections::HashMap;
 
+use serde::{Deserialize, Serialize};
+
 use crate::{location::Location, region::{Port, PortID}};
 
 
 
+#[derive(Deserialize, Serialize)]
 struct PortNode <T> where T: Location {
     port: Port<T>,
     dests: Vec<PortID>
@@ -18,6 +21,7 @@ impl<T> PortNode<T> where T: Location {
 }
 
 /** Represents a graph of port connections */
+#[derive(Deserialize, Serialize)]
 pub struct PortGraph<T> where T: Location {
     port_nodes: HashMap<PortID, PortNode<T>>
 }

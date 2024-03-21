@@ -2,6 +2,8 @@
 
 use std::sync::atomic::AtomicU32;
 
+use serde::{Deserialize, Serialize};
+
 use crate::{location::Location, population::Population};
 
 
@@ -10,7 +12,7 @@ use std::cell::RefCell;
 
 
 
-#[derive(Debug, Clone, Default, PartialEq, Eq, Hash, Copy)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Hash, Copy, Serialize, Deserialize)]
 pub struct PortID(pub u32);
 
 impl PortID {
@@ -21,7 +23,7 @@ impl PortID {
 
 /** Represents a specific site of travel, such as an airport/seaport */
 /** Should only be constructed using an associated region */
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct Port<T> where T: Location {
     // maximum amount of transportation 
     pub capacity: u32,
@@ -59,7 +61,7 @@ impl<T> Port<T> where T: Location {
 // Responsible for assigning a unique ID to every region
 static CURRENT_REGION_ID: AtomicU32 = AtomicU32::new(0);
 
-#[derive(Debug, Clone, PartialEq, Copy, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Copy, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct RegionID(u32);
 
 impl RegionID {
