@@ -52,8 +52,8 @@ mod tests {
         // connect countries together
         for china_port in &china.ports {
             for amer_port in &us.ports {
-                port_graph.add_connection(china_port.id, amer_port.id);
-                port_graph.add_connection(amer_port.id, china_port.id);
+                port_graph.add_directed_connection(china_port.id, amer_port.id);
+                port_graph.add_directed_connection(amer_port.id, china_port.id);
             }
         }
 

@@ -137,11 +137,11 @@ mod tests {
         graph.add_port(port3);
         graph.add_port(port4);
 
-        graph.add_connection(PortID(1), PortID(2));
-        graph.add_connection(PortID(2), PortID(3));
-        graph.add_connection(PortID(3), PortID(4));
-        graph.add_connection(PortID(4), PortID(1));
-        graph.add_connection(PortID(3), PortID(1));
+        graph.add_directed_connection(PortID(1), PortID(2));
+        graph.add_directed_connection(PortID(2), PortID(3));
+        graph.add_directed_connection(PortID(3), PortID(4));
+        graph.add_directed_connection(PortID(4), PortID(1));
+        graph.add_directed_connection(PortID(3), PortID(1));
 
         // make mediator
         let mut med: RegionTransportationMediator<Point2D, RandomTransportAllocator> = RegionTransportationMediator::new(graph, vec![china], RandomTransportAllocator);
@@ -178,7 +178,7 @@ mod tests {
         // add all possible connections, ignoring errors
         for start_id in 0..=10 {
             for end_id in 0..=10 {
-                let _ = graph.add_connection(PortID(start_id), PortID(end_id));
+                let _ = graph.add_directed_connection(PortID(start_id), PortID(end_id));
             }
         }
 

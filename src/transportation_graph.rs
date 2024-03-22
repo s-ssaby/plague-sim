@@ -105,10 +105,13 @@ impl <T> PortGraph <T> where T: Location {
         }
     }
 
-    // Directed
-    pub fn add_connection(&mut self, start: PortID, end: PortID) -> Result<(), String> {
+    pub fn add_directed_connection(&mut self, start: PortID, end: PortID) -> Result<(), String> {
+        // make sure both IDs are different
+        if start == end {
+            Err(format!("Cannot connect PortIDs {} and {}, must be different", start.0, end.0))
+        }
         // check if both IDs exist in graph
-        if !self.in_graph(start) || !self.in_graph(end) {
+        else if !self.in_graph(start) || !self.in_graph(end) {
             Err(format!("At least one Port ID of {} or {} doesn't exist in graph", start.0, end.0).to_owned())
         } else {
             let start_node: &mut PortNode<T> = self.get_mut_node(start).unwrap();
@@ -119,6 +122,36 @@ impl <T> PortGraph <T> where T: Location {
                 start_node.dests.push(end);
                 Ok(())
             }
+        }
+    }
+
+    pub fn add_undirected_connection(&mut self, port1: PortID, port2: PortID) -> Result<(), String> {
+        // make sure both IDs are different
+        if port1 == port2 {
+            Err(format!("Cannot connect PortIDs {} and {}, must be different", port1.0, port2.0))
+        }
+        // check if both IDs exist in graph
+        else if !self.in_graph(port1) || !self.in_graph(port2) {
+            Err(format!("At least one Port ID of {} or {} doesn't exist in graph", port1.0, port2.0).to_owned())
+        } else {
+            // use scoping to avoid having two mutable references at same time
+            {
+                let port1_node: &mut PortNode<T> = self.get_mut_node(port1).unwrap();
+                // make sure either connection doesn't exist already
+                if port1_node.dests.iter().any(|id| *id == port2) {
+                    return Err(format!("Connection betweem start ID {} and end ID {} already exists in graph", port1.0, port2.0));
+                }
+            }
+            {
+                let port2_node: &mut PortNode<T> = self.get_mut_node(port2).unwrap();
+                if port2_node.dests.iter().any(|id| *id == port1) {
+                    return Err(format!("Connection betweem start ID {} and end ID {} already exists in graph", port2.0, port1.0));
+                }
+                port2_node.dests.push(port1);
+            }
+            let port1_node = self.get_mut_node(port1).unwrap();
+            port1_node.dests.push(port2);
+            Ok(())
         }
     }
 
@@ -197,21 +230,25 @@ mod tests {
         // add connections
         for eu_port in europe_ports.iter() {
             for am_port in american_ports.iter() {
-                graph.add_connection(eu_port.id, am_port.id);
+                graph.add_directed_connection(eu_port.id, am_port.id);
             }
         }
 
         // try adding same connection again
-        assert!(graph.add_connection(PortID(2), PortID(0)).is_err());
-        assert!(graph.add_connection(PortID(2), PortID(0)).is_err());
-        assert!(graph.add_connection(PortID(3), PortID(0)).is_err());
-        assert!(graph.add_connection(PortID(4), PortID(0)).is_err());
-        assert!(graph.add_connection(PortID(5), PortID(0)).is_err());
+        assert!(graph.add_directed_connection(PortID(2), PortID(0)).is_err());
+        assert!(graph.add_directed_connection(PortID(2), PortID(0)).is_err());
+        assert!(graph.add_directed_connection(PortID(3), PortID(0)).is_err());
+        assert!(graph.add_directed_connection(PortID(4), PortID(0)).is_err());
+        assert!(graph.add_directed_connection(PortID(5), PortID(0)).is_err());
+
+        // try adding undirected connection when a directed connection already exists
+        assert!(graph.add_undirected_connection(PortID(0), PortID(5)).is_err());
+
 
         // try adding nonsense connections
-        assert!(graph.add_connection(PortID(55), PortID(0)).is_err());
-        assert!(graph.add_connection(PortID(0), PortID(59)).is_err());
-        assert!(graph.add_connection(PortID(509), PortID(99)).is_err());
+        assert!(graph.add_directed_connection(PortID(55), PortID(0)).is_err());
+        assert!(graph.add_directed_connection(PortID(0), PortID(59)).is_err());
+        assert!(graph.add_directed_connection(PortID(509), PortID(99)).is_err());
 
         // Europeans can travel now, but not Americans
         assert_eq!(graph.get_dest_ports(PortID(0)), Some(vec![]));
@@ -220,7 +257,7 @@ mod tests {
         // add reverse connections
         for eu_port in europe_ports.iter() {
             for am_port in american_ports.iter() {
-                graph.add_connection(am_port.id, eu_port.id);
+                graph.add_directed_connection(am_port.id, eu_port.id);
             }
         }
 
