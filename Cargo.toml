@@ -19,6 +19,7 @@ name = "mybin"
 path = "src/bin.rs"
 
 [dev-dependencies]
+macroquad = "0.4"
 
 [[example]]
 name = "2d-plague-sim"
