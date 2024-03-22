@@ -4,7 +4,7 @@ use std::sync::atomic::AtomicU32;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{location::Location, population::Population};
+use crate::{location::{Location, Point2D}, population::Population};
 
 
 
@@ -24,7 +24,7 @@ impl PortID {
 /** Represents a specific site of travel, such as an airport/seaport */
 /** Should only be constructed using an associated region */
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-pub struct Port<T> where T: Location {
+pub struct Port<T = Point2D> where T: Location {
     // maximum amount of transportation 
     pub capacity: u32,
     // whether port is operating or not
@@ -73,7 +73,7 @@ impl RegionID {
 
 /** Represents a region of the world with a human population */
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Region<T> where T: Location {
+pub struct Region<T = Point2D> where T: Location {
     pub id: RegionID,
     pub name: String,
     pub population: Population,

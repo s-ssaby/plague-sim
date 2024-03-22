@@ -6,7 +6,7 @@ use crate::{location::{Location, Point2D}, region::{Port, PortID, Region}, trans
 
 /** Responsible for holding configuration data of plague simulation */
 #[derive(Deserialize, Serialize)]
-pub struct ConfigData <T> where T: Location{
+pub struct ConfigData <T = Point2D> where T: Location{
     pub regions: Vec<Region<T>>,
     pub graph: PortGraph<T>
 }
@@ -18,7 +18,7 @@ impl <T> ConfigData <T> where T: Location {
 }
 
 
-pub fn load_config_data<P>(config_data_path: P) -> Result<ConfigData<Point2D>, Box<dyn Error>> where P: AsRef<Path> {
+pub fn load_config_data<P>(config_data_path: P) -> Result<ConfigData, Box<dyn Error>> where P: AsRef<Path> {
     let regions_data = fs::read_to_string(config_data_path)?;
     let json: ConfigData<Point2D> = serde_json::from_str(&regions_data)?;
     Ok(json)
