@@ -24,7 +24,7 @@ impl<T: Location> TransportAllocator <T> for RandomTransportAllocator {
         match random_dest {
             Some(dest) => {
                 let random_pop = ((start_port.capacity + 1) as f64*get_random()) as u32;
-                let mut transported_population: Population = Population::new(0);
+                let transported_population;
                 // transport entire population
                 if random_pop >= start_region.population.get_total() {
                     transported_population = start_region.population;
