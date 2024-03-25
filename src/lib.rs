@@ -9,7 +9,7 @@ pub mod config;
 pub mod transportation_allocator;
 pub mod math_utils;
 pub mod location;
-pub mod simulation_data;
+pub mod simulation_geography;
 
 
 #[cfg(test)]
