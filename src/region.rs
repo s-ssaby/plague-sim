@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use std::sync::atomic::AtomicU32;
+use std::{fmt::{write, Display}, sync::atomic::AtomicU32};
 
 use serde::{Deserialize, Serialize};
 
@@ -18,6 +18,12 @@ pub struct PortID(pub u32);
 impl PortID {
     pub fn new(id: u32) -> Self {
         Self(id)
+    }
+}
+
+impl Display for PortID {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 
@@ -62,12 +68,18 @@ impl<T> Port<T> where T: Location {
 static CURRENT_REGION_ID: AtomicU32 = AtomicU32::new(0);
 
 #[derive(Debug, Clone, PartialEq, Copy, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct RegionID(u32);
+pub struct RegionID(pub u32);
 
 impl RegionID {
     fn new() -> Self{
         let val = CURRENT_REGION_ID.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
         RegionID(val)
+    }
+}
+
+impl Display for RegionID {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 
@@ -79,21 +91,6 @@ pub struct Region<T = Point2D> where T: Location {
     pub population: Population,
     pub ports: Vec<Port<T>>
 }
-
-// impl TryFrom<RegionBuilder> for Region {
-//     type Error = String;
-
-//     fn try_from(value: RegionBuilder) -> Result<Self, Self::Error> {
-//         let name = value.name;
-//         let initial_pop = value.population;
-//         let ports = value.ports;
-//         match (name, initial_pop) {
-//             (None, _) => Err("Region must have a name".to_owned()),
-//             (Some(name), None) => Err(format!("Region {} must have a population", name)),
-//             (Some(name), Some(initial_pop)) => Ok(Region::new_custom(name, initial_pop, ports)),
-//         }
-//     }
-// }
 
 impl<T> Region <T> where T: Location {
     /** Creates region of healthy people */
