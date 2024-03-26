@@ -1,3 +1,5 @@
+use std::slice::Iter;
+
 use crate::{location::{Location, Point2D}, region::{Port, PortID, Region, RegionID}, transportation_graph::PortGraph};
 
 /// Responsible for storing simulation geography data and communicating changes across its components
@@ -29,13 +31,13 @@ impl<T> SimulationGeography <T> where T: Location {
         None
     }
 
-    /* Returns an iterator over contained regions */
-    pub fn get_regions(&self) -> impl IntoIterator + '_ {
-        &self.regions
+    /* Returns contained regions */
+    pub fn get_regions(&self) -> Iter<'_, Region<T>> {
+        self.regions.iter()
     }
 
-    /* Returns an iterator over contained ports */
-    pub fn get_ports(&self) -> impl IntoIterator + '_ {
+    /* Returns contained ports */
+    pub fn get_ports(&self) -> Vec<&Port<T>> {
         self.graph.get_ports()
     }
 
