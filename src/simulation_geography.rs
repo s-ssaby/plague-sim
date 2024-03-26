@@ -1,4 +1,4 @@
-use crate::{location::{Location, Point2D}, region::{Port, PortID, Region}, transportation_graph::PortGraph};
+use crate::{location::{Location, Point2D}, region::{Port, PortID, Region, RegionID}, transportation_graph::PortGraph};
 
 /// Responsible for storing simulation geography data and communicating changes across its components
 /// 
@@ -25,6 +25,16 @@ impl<T> SimulationGeography <T> where T: Location {
             }
         }
         None
+    }
+
+    /* Returns an iterator over contained regions */
+    pub fn get_regions(&self) -> impl IntoIterator + '_ {
+        &self.regions
+    }
+
+    /* Find region with given ID, if it exists */
+    pub fn get_region(&self, region_id: RegionID) -> Option<&Region<T>> {
+        self.regions.iter().find(|region| region.id == region_id)
     }
 
     /* Find port with given ID, if it exists */
