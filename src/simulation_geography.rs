@@ -87,6 +87,11 @@ impl<T> SimulationGeography <T> where T: Location {
         self.regions.iter()
     }
 
+    /* Returns IDs of contained regions */
+    pub fn get_region_ids(&self) -> Vec<RegionID> {
+        self.regions.iter().map(|reg| reg.id).collect()
+    }
+
     /* Returns contained ports */
     pub fn get_ports(&self) -> Vec<&Port<T>> {
         self.graph.get_ports()
