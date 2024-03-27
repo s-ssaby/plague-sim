@@ -8,7 +8,7 @@ use crate::{location::{Location, Point2D}, region::{Port, PortID}};
 
 
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 struct PortNode <T> where T: Location {
     port: Port<T>,
     dests: Vec<PortID>
@@ -21,7 +21,7 @@ impl<T> PortNode<T> where T: Location {
 }
 
 /** Represents a graph of port connections */
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct PortGraph<T = Point2D> where T: Location {
     port_nodes: HashMap<PortID, PortNode<T>>
 }
