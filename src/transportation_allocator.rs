@@ -1,6 +1,6 @@
 // Responsible for calculating ways to allocate people to transportation
 
-use crate::{location::{Location, Point2D}, math_utils::{get_random, pick_random}, population::Population, region::{Port, Region, RegionID}};
+use crate::{location::{Location, Point2D}, math_utils::{get_random, pick_random}, population::Population, region::{Port, PortID, Region, RegionID}};
 
 
 
@@ -43,7 +43,7 @@ impl<T: Location> TransportAllocator <T> for RandomTransportAllocator {
                 debug_assert!(transported_population.recovered <= start_region.population.recovered, "{}", 
                 format!("Unable to remove {} recovered from {} recovered", transported_population.recovered, start_region.population.recovered));
                 // TODO! Change time calculation later
-                vec![TransportJob {start_region: start_region.id, end_region: dest.region, population: transported_population, time: 5}]
+                vec![TransportJob {start_region: start_region.id, start_port: start_port.id, end_region: dest.region, end_port: dest.id, population: transported_population, time: 5}]
             },
             None => vec![],
         }
@@ -51,7 +51,9 @@ impl<T: Location> TransportAllocator <T> for RandomTransportAllocator {
 }
 
 pub struct TransportJob {
+    pub start_port: PortID,
     pub start_region: RegionID,
+    pub end_port: PortID,
     pub end_region: RegionID,
     pub population: Population,
     pub time: u32
