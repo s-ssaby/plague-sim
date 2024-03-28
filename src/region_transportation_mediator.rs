@@ -144,7 +144,7 @@ mod tests {
         graph.add_directed_connection(PortID(3), PortID(1));
 
         // make mediator
-        let mut med: RegionTransportationMediator<Point2D, RandomTransportAllocator> = RegionTransportationMediator::new(graph, vec![china], RandomTransportAllocator);
+        let mut med: RegionTransportationMediator<Point2D, RandomTransportAllocator> = RegionTransportationMediator::new(graph, vec![china], RandomTransportAllocator::new(1.0));
 
         // make sure that number of people living in regions plus number in transit always stays same
         let total = med.statistics.in_transit + med.statistics.region_population;
@@ -160,7 +160,7 @@ mod tests {
         let config = load_config_data("test_data/data.json").unwrap();
      
         // create mediator, add regions
-        let mut med: RegionTransportationMediator<Point2D, RandomTransportAllocator> = RegionTransportationMediator::new(config.graph, config.regions, RandomTransportAllocator);
+        let mut med: RegionTransportationMediator<Point2D, RandomTransportAllocator> = RegionTransportationMediator::new(config.graph, config.regions, RandomTransportAllocator::new(1.0));
 
         // make sure that number of people living in regions plus number in transit always stays same
         let total = med.statistics.in_transit + med.statistics.region_population;
@@ -183,7 +183,7 @@ mod tests {
         }
 
         // create mediator, add regions
-        let mut med: RegionTransportationMediator<Point2D, RandomTransportAllocator> = RegionTransportationMediator::new(graph, config.regions, RandomTransportAllocator);
+        let mut med: RegionTransportationMediator<Point2D, RandomTransportAllocator> = RegionTransportationMediator::new(graph, config.regions, RandomTransportAllocator::new(1.0));
 
         // make sure that number of people living in regions plus number in transit always stays same
         let total = med.statistics.in_transit + med.statistics.region_population;
