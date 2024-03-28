@@ -98,7 +98,7 @@ impl<'a, A: Location + 'a, T: TransportAllocator<A>> RegionTransportationMediato
 
             // calculate transport jobs
             let calculated_jobs = allocator.calculate_transport(port, region, port_dests);
-            for job in calculated_jobs {
+            for job in calculated_jobs.unwrap() {
                 match region.population.emigrate(job.population) {
                     Ok(new_pop) => {
                         region.population = new_pop;

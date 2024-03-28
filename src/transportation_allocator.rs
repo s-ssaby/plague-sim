@@ -5,11 +5,12 @@ use crate::{location::{Location, Point2D}, math_utils::{get_random, pick_random}
 
 
 /** Determines how to create a transport job when given a starting port and its region and where it can travel to */
-/** Implementations must return a TransportJob satisfy the following properties: */
-/** - The population must be able to be extracted from the start region */
+/** Implementations must satisfy the following properties: */
+/** - The total population must be able to be extracted from the start region */
 /**     - For example, you cannot transport 2 infected individuals from a population of 50 healthy ones */
+/** - Use None to communicate that no jobs could be created, e.g. region is uninhabited */
 pub trait TransportAllocator<T = Point2D> where T: Location {
-    fn calculate_transport<'a>(&self, start_port: &Port<T>, start_region: &Region<T>, destination_port_choices: Vec<&Port<T>>) -> Vec<TransportJob>;
+    fn calculate_transport<'a>(&self, start_port: &Port<T>, start_region: &Region<T>, destination_port_choices: Vec<&Port<T>>) -> Option<Vec<TransportJob>>;
 }
 
 /// Randomly choose a port to travel to, and transport a random number of people up to the starting port's capacity
@@ -27,13 +28,17 @@ impl RandomTransportAllocator {
 }
 
 impl<T: Location> TransportAllocator <T> for RandomTransportAllocator {
-    fn calculate_transport<'a>(&self, start_port: &Port<T>, start_region: &Region<T>, destination_port_choices: Vec<&Port<T>>) -> Vec<TransportJob> {
+    fn calculate_transport<'a>(&self, start_port: &Port<T>, start_region: &Region<T>, destination_port_choices: Vec<&Port<T>>) -> Option<Vec<TransportJob>> {
         // only prepare a transport if random chance favors it
         if (get_random() as f32) < self.transport_probability {
             let random_dest = pick_random(destination_port_choices);
             match random_dest {
                 Some(dest) => {
                     let random_pop = ((start_port.capacity + 1) as f64*get_random()) as u32;
+                    // do not transport if empty
+                    if random_pop == 0 {
+                        return None;
+                    }
                     let transported_population;
                     // transport entire population
                     if random_pop >= start_region.population.get_total() {
@@ -54,12 +59,12 @@ impl<T: Location> TransportAllocator <T> for RandomTransportAllocator {
                     format!("Unable to remove {} recovered from {} recovered", transported_population.recovered, start_region.population.recovered));
                     // TODO! Change time calculation later to allow changes in speed
                     let distance = start_port.pos.distance(&dest.pos) as u32;
-                    vec![TransportJob {start_region: start_region.id, start_port: start_port.id, end_region: dest.region, end_port: dest.id, population: transported_population, time: distance}]
+                    Some(vec![TransportJob {start_region: start_region.id, start_port: start_port.id, end_region: dest.region, end_port: dest.id, population: transported_population, time: distance}])
                 },
-                None => vec![],
+                None => None,
             }
         } else {
-            vec![]
+            None
         }
     }
 }
@@ -97,7 +102,7 @@ mod test {
             let brasil_to_benin_jobs = random_alloc.calculate_transport(&braz_port, &brazil, vec![&benin_port]);
 
             // try to transport
-            for job in brasil_to_benin_jobs {
+            for job in brasil_to_benin_jobs.unwrap() {
                 let transport_pop = job.population;
                 let result = brazil_curr_pop.emigrate(transport_pop);
                 assert!(&result.is_ok(), "{}", format!("Error on update {}: {}", i + 1, result.err().unwrap()));
