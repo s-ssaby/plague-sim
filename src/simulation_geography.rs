@@ -58,7 +58,7 @@ impl<T> SimulationGeography <T> where T: Location {
 
     /* Add given population to population of specified region, if it exists */
     pub fn add_population(&mut self, region_id: RegionID, population: Population) -> Result<(), String> {
-        self.get_region_mut(region_id).map(|region| region.population = population).ok_or(format!("Cannot find region ID {}", region_id))
+        self.get_region_mut(region_id).map(|region| region.population = region.population + population).ok_or(format!("Cannot find region ID {}", region_id))
     }
 
     /// Removes given population from region, if found
