@@ -1,6 +1,6 @@
 use std::{fmt::format, slice::Iter};
 
-use crate::{location::{Location, Point2D}, population::Population, region::{Port, PortID, Region, RegionID}, transportation_graph::PortGraph};
+use crate::{location::{Location, Point2D}, population_types::population::Population, region::{Port, PortID, Region, RegionID}, transportation_graph::PortGraph};
 
 /// Responsible for storing simulation geography data and communicating changes across its components
 /// 

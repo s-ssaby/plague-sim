@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{location::Location, population::Population, region::{Region, RegionID}, transportation_allocator::{RandomTransportAllocator, TransportAllocator, TransportJob}, transportation_graph::PortGraph};
+use crate::{location::Location, population_types::population::Population, region::{Region, RegionID}, transportation_allocator::{RandomTransportAllocator, TransportAllocator, TransportJob}, transportation_graph::PortGraph};
 
 
 /** Stores data not necessary for mediator's functioning, but may be useful for clients */

@@ -3,14 +3,13 @@
 pub mod region;
 pub mod transportation_graph;
 pub mod pathogen;
-pub mod population;
+pub mod population_types;
 pub mod region_transportation_mediator;
 pub mod config;
 pub mod transportation_allocator;
 pub mod math_utils;
 pub mod location;
 pub mod simulation_geography;
-pub mod populated_area;
 
 
 #[cfg(test)]

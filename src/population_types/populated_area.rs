@@ -1,4 +1,6 @@
-use crate::population::Population;
+use super::population::Population;
+
+
 
 /// Represents a human population with an associated area and population density
 /// 

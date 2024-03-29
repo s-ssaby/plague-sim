@@ -1,6 +1,6 @@
 // Responsible for calculating ways to allocate people to transportation
 
-use crate::{location::{Location, Point2D}, math_utils::{get_random, pick_random}, population::Population, region::{Port, PortID, Region, RegionID}};
+use crate::{location::{Location, Point2D}, math_utils::{get_random, pick_random}, population_types::population::Population, region::{Port, PortID, Region, RegionID}};
 
 
 
@@ -80,7 +80,7 @@ pub struct TransportJob {
 
 #[cfg(test)]
 mod test {
-    use crate::{location::Point2D, population::Population, region::{PortID, Region}};
+    use crate::{location::Point2D, population_types::population::Population, region::{PortID, Region}};
 
     use super::{RandomTransportAllocator, TransportAllocator};
 
