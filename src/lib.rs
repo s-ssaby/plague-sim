@@ -10,6 +10,7 @@ pub mod transportation_allocator;
 pub mod math_utils;
 pub mod location;
 pub mod simulation_geography;
+pub mod populated_area;
 
 
 #[cfg(test)]
