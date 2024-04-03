@@ -17,34 +17,34 @@ pub struct PopulatedArea {
 /// * alive density * area = non dead total
 impl PopulatedArea {
     /// Creates based on a given area and population
-    pub fn new_from_area() {
+    pub fn new_from_area(area: f32, population: Population) {
         todo!()
     }
 
     /// Creates based on a given population density and population
-    pub fn new_from_density() {
+    pub fn new_from_density(density: f32, population: Population) {
         todo!()
     }
 
     /// Get population
-    pub fn get_population() -> Population {
+    pub fn get_population(&self) -> Population {
         todo!()
     }
 
     /// Get area
-    pub fn get_area() -> f32 {
+    pub fn get_area(&self) -> f32 {
         todo!()
     }
 
     /// Set population
     /// Returns new total density and new alive density
-    pub fn set_population() {
+    pub fn set_population(&mut self, population: Population) {
         todo!()
     }
 
     /// Set area
     /// Returns new total density and new alive density
-    pub fn set_area() {
+    pub fn set_area(&mut self, area: f32) {
         todo!()
     }
 }
