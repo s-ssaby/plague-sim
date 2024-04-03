@@ -31,6 +31,11 @@ impl PopulatedArea {
         todo!()
     }
 
+    /// Get area
+    pub fn get_area() -> f32 {
+        todo!()
+    }
+
     /// Set population
     /// Returns new total density and new alive density
     pub fn set_population() {
