@@ -1,8 +1,8 @@
-use crate::population_types::population::Population;
+use crate::population_types::{population::Population, PopulationType};
 
 // Represents anything that transforms one population into another, including pathogens
-pub trait ShiftPopulation {
-    fn shift_population(&self, population: Population) -> Population;
+pub trait ShiftPopulation<T> where T: PopulationType{
+    fn shift_population(&self, population: T) -> T;
 }
 
 // Represents a disease that can spread from person to person
