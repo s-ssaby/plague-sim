@@ -22,6 +22,14 @@ impl PopulationType for PopulatedArea {
     }
 }
 
+/// Represents a type's ability to represent a population with an associated population density
+/// 
+/// This trait may not be implemented by clients on their types
+pub trait Density {
+    /// Gets population density
+    fn density() -> f32;
+}
+
 mod private {
     use super::{populated_area::PopulatedArea, population::Population};
 
