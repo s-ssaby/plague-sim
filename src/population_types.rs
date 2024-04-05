@@ -26,13 +26,20 @@ impl PopulationType for PopulatedArea {
 /// 
 /// This trait may not be implemented by clients on their types
 pub trait Density {
-    /// Gets population density
-    fn density(&self) -> f32;
+    /// Gets total population density
+    fn total_density(&self) -> f32;
+
+    /// Gets alive population density
+    fn alive_density(&self) -> f32;
 }
 
 impl Density for PopulatedArea {
-    fn density(&self) -> f32 {
+    fn total_density(&self) -> f32 {
         self.total_density()
+    }
+
+    fn alive_density(&self) -> f32 {
+        self.alive_density()
     }
 }
 
