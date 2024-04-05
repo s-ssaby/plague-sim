@@ -7,7 +7,7 @@ pub trait BasicShiftPopulation {
 
 /// Represents anything that transforms a population with a population density into another, including pathogens
 pub trait AdvancedShiftPopulation {
-    fn shift_population<T>(&self, population: T) -> T where T: Density;
+    fn shift_population<T>(&self, population: T) -> T where T: PopulationType + Density;
 }
 
 // Represents a disease that can spread from person to person
