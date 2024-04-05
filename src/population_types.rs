@@ -32,7 +32,7 @@ pub trait Density {
 
 impl Density for PopulatedArea {
     fn density(&self) -> f32 {
-        self.density()
+        self.total_density()
     }
 }
 
