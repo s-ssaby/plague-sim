@@ -22,12 +22,18 @@ impl PopulationType for PopulatedArea {
     }
 }
 
-/// Represents a type's ability to represent a population with an associated population density
+/// Represents a type's ability to have an associated population density
 /// 
 /// This trait may not be implemented by clients on their types
 pub trait Density {
     /// Gets population density
-    fn density() -> f32;
+    fn density(&self) -> f32;
+}
+
+impl Density for PopulatedArea {
+    fn density(&self) -> f32 {
+        self.density()
+    }
 }
 
 mod private {
