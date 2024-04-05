@@ -49,12 +49,12 @@ impl PopulatedArea {
     }
 
     /// Gets alive population density
-    pub fn alive_density(&self) {
+    pub fn alive_density(&self) -> f32 {
         todo!()
     }
 
     /// Gets total population density
-    pub fn total_density(&self) {
+    pub fn total_density(&self) -> f32 {
         todo!()
     }
 }
