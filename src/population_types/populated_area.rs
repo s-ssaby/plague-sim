@@ -47,4 +47,14 @@ impl PopulatedArea {
     pub fn set_area(&mut self, area: f32) {
         todo!()
     }
+
+    /// Gets alive population density
+    pub fn alive_density(&self) {
+        todo!()
+    }
+
+    /// Gets total population density
+    pub fn total_density(&self) {
+        todo!()
+    }
 }
