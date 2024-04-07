@@ -8,11 +8,20 @@ pub mod population;
 /// This trait may not be implemented by clients on their types
 pub trait PopulationType : private::Sealed {
     fn population(&self) -> Population;
+
+    fn set_population(&mut self, population: Population);
 }
 
 impl PopulationType for Population {
     fn population(&self) -> Population {
         *self
+    }
+    
+    fn set_population(&mut self, population: Population) {
+        self.dead = population.dead;
+        self.healthy = population.healthy;
+        self.infected = population.infected;
+        self.recovered = population.recovered;
     }
 }
 
@@ -20,6 +29,12 @@ impl PopulationType for PopulatedArea {
     fn population(&self) -> Population {
         self.get_population()
     }
+    
+    fn set_population(&mut self, population: Population) {
+        self.set_population(population);
+    }
+
+    
 }
 
 /// Represents a type's ability to have an associated population density
