@@ -1,5 +1,8 @@
 use crate::population_types::{population::Population, Density, PopulationType};
 
+// Marker trait used to represent a pathogen, which are entities that act on populations without removing, or adding to them
+pub trait Pathogen {}
+
 // Represents anything that transforms one population into another, including pathogens
 pub trait BasicShiftPopulation {
     fn shift_population<T>(&self, population: T) -> T where T: PopulationType;
@@ -19,7 +22,7 @@ pub struct SpontaneousPathogen<T> {
 // Represents a disease that can spread from person to person
 
 #[derive(Debug, Clone, Default, PartialEq)]
-pub struct Pathogen {
+pub struct PathogenStruct {
     pub name: String,
     // probability of transmission when interacting with another person
     pub infectivity: f64,
@@ -29,7 +32,7 @@ pub struct Pathogen {
     pub recovery_rate: f64   
 }
 
-impl Pathogen {
+impl PathogenStruct {
     pub fn new(name: String, infectivity: f64, lethality: f64, recovery_rate: f64) -> Result<Self, String> {
         if !(0.0..=1.0).contains(&infectivity) {
             return Err(format!("Infectivity must be between 0 and 1, not {infectivity}"));
