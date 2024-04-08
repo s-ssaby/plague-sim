@@ -5,12 +5,12 @@ pub trait Pathogen {}
 
 // Represents a pathogen that acts on a population using its healthy, infected, etc counts with no other info about it
 pub trait BasicPathogen : Pathogen {
-    fn calculate_population<T>(&self, population: T) -> T where T: PopulationType;
+    fn calculate_population<T>(&self, population: &T) -> T where T: PopulationType;
 }
 
 /// Represents a pathogen that acts on a population using its healthy, infected, etc counts in combination with population density information
 pub trait AdvancedPathogen : Pathogen {
-    fn calculate_population<T>(&self, population: T) -> T where T: PopulationType + Density;
+    fn calculate_population<T>(&self, population: &T) -> T where T: PopulationType + Density;
 }
 
 
@@ -29,13 +29,13 @@ impl<T> SpontaneousPathogen<T> where T: Pathogen {
 }
 
 impl<P> BasicPathogen for SpontaneousPathogen<P> where P: BasicPathogen {
-    fn calculate_population<T>(&self, population: T) -> T where T: PopulationType {
+    fn calculate_population<T>(&self, population: &T) -> T where T: PopulationType {
         todo!()
     }
 }
 
 impl<P> AdvancedPathogen for SpontaneousPathogen<P> where P: BasicPathogen {
-    fn calculate_population<T>(&self, population: T) -> T where T: PopulationType {
+    fn calculate_population<T>(&self, population: &T) -> T where T: PopulationType {
         todo!()
     }
 }
