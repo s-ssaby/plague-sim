@@ -13,11 +13,33 @@ pub trait AdvancedPathogen : Pathogen {
     fn calculate_population<T>(&self, population: T) -> T where T: PopulationType + Density;
 }
 
-pub struct SpontaneousPathogen<T> {
+
+/// Represents a pathogen that can spontaneously spawn into populations without any infected individuals
+pub struct SpontaneousPathogen<T> where T: Pathogen {
     pub spawn_chance: f32,
     pub pathogen: T
-
 }
+
+impl<T> Pathogen for SpontaneousPathogen<T> where T: Pathogen {}
+
+impl<T> SpontaneousPathogen<T> where T: Pathogen {
+    pub fn new(spawn_chance: f32, pathogen: T) -> Self {
+        Self {spawn_chance, pathogen}
+    }
+}
+
+impl<P> BasicPathogen for SpontaneousPathogen<P> where P: BasicPathogen {
+    fn calculate_population<T>(&self, population: T) -> T where T: PopulationType {
+        todo!()
+    }
+}
+
+impl<P> AdvancedPathogen for SpontaneousPathogen<P> where P: BasicPathogen {
+    fn calculate_population<T>(&self, population: T) -> T where T: PopulationType {
+        todo!()
+    }
+}
+
 
 // Represents a disease that can spread from person to person
 
