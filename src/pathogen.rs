@@ -10,6 +10,12 @@ pub trait AdvancedShiftPopulation {
     fn shift_population<T>(&self, population: T) -> T where T: PopulationType + Density;
 }
 
+pub struct SpontaneousPathogen<T> {
+    pub spawn_chance: f32,
+    pub pathogen: T
+
+}
+
 // Represents a disease that can spread from person to person
 
 #[derive(Debug, Clone, Default, PartialEq)]
