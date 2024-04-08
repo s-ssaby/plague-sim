@@ -3,14 +3,14 @@ use crate::population_types::{population::Population, Density, PopulationType};
 // Marker trait used to represent a pathogen, which are entities that act on populations without removing, or adding to them
 pub trait Pathogen {}
 
-// Represents anything that transforms one population into another, including pathogens
-pub trait BasicShiftPopulation {
-    fn shift_population<T>(&self, population: T) -> T where T: PopulationType;
+// Represents a pathogen that acts on a population using its healthy, infected, etc counts with no other info about it
+pub trait BasicPathogen : Pathogen {
+    fn calculate_population<T>(&self, population: T) -> T where T: PopulationType;
 }
 
-/// Represents anything that transforms a population with a population density into another, including pathogens
-pub trait AdvancedShiftPopulation {
-    fn shift_population<T>(&self, population: T) -> T where T: PopulationType + Density;
+/// Represents a pathogen that acts on a population using its healthy, infected, etc counts in combination with population density information
+pub trait AdvancedPathogen : Pathogen {
+    fn calculate_population<T>(&self, population: T) -> T where T: PopulationType + Density;
 }
 
 pub struct SpontaneousPathogen<T> {
