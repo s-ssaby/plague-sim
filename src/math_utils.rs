@@ -10,6 +10,11 @@ pub fn pick_random<I>(collection: I) -> Option<<I as IntoIterator>::Item> where 
    fastrand::choice(collection)
 }
 
+/// Returns how many trials succeeded given a trial amount and a success rate according to a binomial distribution
+pub fn binomial_sample(trials: u32, success_rate: f64) -> u32 {
+    todo!()
+}
+
 #[cfg(test)]
 mod tests {
     use crate::math_utils;
