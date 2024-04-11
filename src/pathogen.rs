@@ -48,8 +48,6 @@ pub struct PathogenStruct {
     pub infectivity: f64,
     // probability of dying each day
     pub lethality: f64,
-    // probability of recovering each day
-    pub recovery_rate: f64   
 }
 
 impl PathogenStruct {
@@ -60,14 +58,7 @@ impl PathogenStruct {
         if !(0.0..=1.0).contains(&lethality) {
             return Err(format!("Lethality must be between 0 and 1, not {lethality}"));
         }
-        if !(0.0..=1.0).contains(&recovery_rate) {
-            return Err(format!("Recovery rate must be between 0 and 1, not {recovery_rate}"));
-        }
-        let sum = recovery_rate + infectivity;
-        if sum > 1.0_f64 {
-            return Err(format!("Sum of recovery rate and lethality rate cannot exceed 1, sum is {sum}"));
-        }
 
-        Ok(Self {name, infectivity, lethality, recovery_rate})
+        Ok(Self {name, infectivity, lethality})
     }
 }
