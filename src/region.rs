@@ -108,7 +108,7 @@ impl<T> Region <T> where T: Location {
         Region {name, population: initial_pop, ports: vec![], id }
     }
 
-    pub fn get_id(&self) -> RegionID {
+    pub fn id(&self) -> RegionID {
         self.id
     }
 
