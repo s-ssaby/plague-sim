@@ -84,12 +84,15 @@ impl Display for RegionID {
 }
 
 /** Represents a region of the world with a human population */
+
+// Invariants to be preserved
+// RegionID always matched RegionID of ports it contains
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Region<T = Point2D> where T: Location {
-    pub id: RegionID,
+    id: RegionID,
     pub name: String,
     pub population: Population,
-    pub ports: Vec<Port<T>>
+    ports: Vec<Port<T>>
 }
 
 impl<T> Region <T> where T: Location {
@@ -100,9 +103,17 @@ impl<T> Region <T> where T: Location {
     }
 
     /** Creates region of people with specified population distribution */
-    pub fn new_custom(name: String, initial_pop: Population, mut ports: Vec<Port<T>>) -> Self {
+    pub fn new_custom(name: String, initial_pop: Population) -> Self {
         let id = RegionID::new();
-        Region {name, population: initial_pop, ports, id }
+        Region {name, population: initial_pop, ports: vec![], id }
+    }
+
+    pub fn get_id(&self) -> RegionID {
+        self.id
+    }
+
+    pub fn get_ports(&self) -> &[Port<T>] {
+        &self.ports
     }
 
     /** Adds port to Region and returns a copy */
