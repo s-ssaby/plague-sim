@@ -28,7 +28,7 @@ impl Add for Population {
 
 impl Population {
     /* Creates a population of healthy people */
-    pub fn new (initial_pop: u32) -> Self {
+    pub fn new_healthy (initial_pop: u32) -> Self {
         Self {healthy: initial_pop, dead: 0, recovered: 0, infected: 0}
     }
 

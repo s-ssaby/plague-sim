@@ -96,7 +96,7 @@ impl<T> Region <T> where T: Location {
     /** Creates region of healthy people */
     pub fn new(name: String, initial_pop: u32) -> Self {
         let id = RegionID::new();
-        Region {name, population: Population::new(initial_pop), ports: vec![], id }
+        Region {name, population: Population::new_healthy(initial_pop), ports: vec![], id }
     }
 
     /** Creates region of people with specified population distribution */
