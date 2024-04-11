@@ -51,7 +51,7 @@ pub struct PathogenStruct {
 }
 
 impl PathogenStruct {
-    pub fn new(name: String, infectivity: f64, lethality: f64, recovery_rate: f64) -> Result<Self, String> {
+    pub fn new(name: String, infectivity: f64, lethality: f64) -> Result<Self, String> {
         if !(0.0..=1.0).contains(&infectivity) {
             return Err(format!("Infectivity must be between 0 and 1, not {infectivity}"));
         }
