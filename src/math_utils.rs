@@ -1,3 +1,7 @@
+use rand_distr::{Binomial, Distribution};
+use rand::{rngs::ThreadRng, Rng};
+
+
 /* Provides important math functionality */
 
 
@@ -12,7 +16,9 @@ pub fn pick_random<I>(collection: I) -> Option<<I as IntoIterator>::Item> where 
 
 /// Returns how many trials succeeded given a trial amount and a success rate according to a binomial distribution
 pub fn binomial_sample(trials: u32, success_rate: f64) -> u32 {
-    todo!()
+    let distr = Binomial::new(trials.into(), success_rate).unwrap();
+    let mut generator = rand::thread_rng();
+    distr.sample(&mut generator).try_into().unwrap()
 }
 
 #[cfg(test)]
@@ -26,4 +32,5 @@ mod tests {
 
         assert_eq!(values.len(), 4);
     }
+    
 }
