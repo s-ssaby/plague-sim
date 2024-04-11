@@ -23,7 +23,7 @@ impl<T> SimulationGeography <T> where T: Location {
 
     fn find_port_in_regions(&self, port_id: PortID) -> Option<&Port<T>> {
         for region in &self.regions {
-            let result = region.ports.iter().find(|port| port.id == port_id);
+            let result = region.get_ports().iter().find(|port| port.id == port_id);
             if result.is_some() {
                 return result;
             }
@@ -33,11 +33,11 @@ impl<T> SimulationGeography <T> where T: Location {
 
     /* Find region with given ID, if it exists */
     pub fn get_region(&self, region_id: RegionID) -> Option<&Region<T>> {
-        self.regions.iter().find(|region| region.id == region_id)
+        self.regions.iter().find(|region| region.id() == region_id)
     }
 
     fn get_region_mut(&mut self, region_id: RegionID) -> Option<&mut Region<T>> {
-        self.regions.iter_mut().find(|region| region.id == region_id)
+        self.regions.iter_mut().find(|region| region.id() == region_id)
     }
 
     /* Find port with given ID, if it exists */
@@ -89,7 +89,7 @@ impl<T> SimulationGeography <T> where T: Location {
 
     /* Returns IDs of contained regions */
     pub fn get_region_ids(&self) -> Vec<RegionID> {
-        self.regions.iter().map(|reg| reg.id).collect()
+        self.regions.iter().map(|reg| reg.id()).collect()
     }
 
     /* Returns contained ports */

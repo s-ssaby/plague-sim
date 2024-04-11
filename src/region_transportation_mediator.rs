@@ -32,7 +32,7 @@ impl<'a, A: Location + 'a, T: TransportAllocator<A>> RegionTransportationMediato
     pub fn new(port_graph: PortGraph<A>, regions: Vec<Region<A>>, allocator: T) -> Self {
         let mut region_map = HashMap::new();
         for region in regions {
-            region_map.insert(region.id, region);
+            region_map.insert(region.id(), region);
         }
         let total_pop = Self::calculate_regions_population(region_map.values());
         Self { regions: region_map, port_graph, ongoing_transport: vec![], statistics: MediatorStatistics::new(total_pop), allocator}
@@ -92,7 +92,7 @@ impl<'a, A: Location + 'a, T: TransportAllocator<A>> RegionTransportationMediato
     fn calculate_transport_jobs(port_graph: &PortGraph<A>, region: &mut Region<A>, allocator: &T) -> Vec<TransportJob> {
         let mut new_jobs: Vec<TransportJob> = vec![];
         // look at each port
-        for port in &region.ports {
+        for port in region.get_ports() {
             // where can each port go to?
             let port_dests = port_graph.get_dest_ports(port.id).unwrap();
 
@@ -101,7 +101,6 @@ impl<'a, A: Location + 'a, T: TransportAllocator<A>> RegionTransportationMediato
             for job in calculated_jobs.unwrap() {
                 match region.population.emigrate(job.population) {
                     Ok(new_pop) => {
-                        region.population = new_pop;
                         // assume transportation takes 2 days
                         new_jobs.push(job)
                     },
@@ -109,6 +108,18 @@ impl<'a, A: Location + 'a, T: TransportAllocator<A>> RegionTransportationMediato
                 }
             }
         }
+
+        // Now, passengers depart after calculations
+        for job in &new_jobs {
+            match region.population.emigrate(job.population) {
+                Ok(new_pop) => {
+                    region.population = new_pop;
+                }
+                Err(e) => panic!("{}", e),
+            }
+        }
+
+
         new_jobs
     }
 }

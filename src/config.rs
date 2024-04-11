@@ -54,9 +54,9 @@ mod tests {
         // shouldn't be in graph
         assert!(!graph.in_graph(PortID(6)));
 
-        let us_id = regions[0].id;
-        let europe_id = regions[1].id;
-        let china_id = regions[2].id;
+        let us_id = regions[0].id();
+        let europe_id = regions[1].id();
+        let china_id = regions[2].id();
 
         assert_eq!(graph.get_port(PortID(0)).unwrap().region, us_id);
         assert_eq!(graph.get_port(PortID(1)).unwrap().region, us_id);

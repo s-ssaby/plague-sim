@@ -60,7 +60,7 @@ impl<'a, A: Location + 'a, T: TransportAllocator<A>> Simulation<A, T> {
                 let end_region = self.geography.get_region(job.job.end_region);
                 match end_region {
                     Some(unwrapped_end_reg) => {
-                        self.geography.add_population(unwrapped_end_reg.id, job.job.population);
+                        self.geography.add_population(unwrapped_end_reg.id(), job.job.population);
                         return  false;
                     },
                     None => panic!("{}", format!("Region with ID {} that job is referring to doesn't exist in mediator", job.job.end_region)),
@@ -93,7 +93,7 @@ impl<'a, A: Location + 'a, T: TransportAllocator<A>> Simulation<A, T> {
         {
         let region = geography.get_region(region_id).unwrap();
         // look at each port
-        for port in &region.ports {
+        for port in region.get_ports() {
             // where can each port go to?
             let port_dests = geography.get_open_dest_ports(port.id).unwrap();
 
