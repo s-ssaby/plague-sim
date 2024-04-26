@@ -20,20 +20,20 @@ impl <P, T> ConfigData <P, T> where T: Location, P: PopulationType {
 
 pub fn load_config_data<P>(config_data_path: P) -> Result<ConfigData, Box<dyn Error>> where P: AsRef<Path> {
     let regions_data = fs::read_to_string(config_data_path)?;
-    let json: ConfigData<Point2D> = serde_json::from_str(&regions_data)?;
+    let json: ConfigData<Population, Point2D> = serde_json::from_str(&regions_data)?;
     Ok(json)
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{config::{load_config_data, ConfigData}, location::Point2D, region::PortID};
+    use crate::{config::{load_config_data, ConfigData}, location::Point2D, population_types::population::Population, region::PortID};
 
 
     #[test]
     fn test_config() {
         let config_data = load_config_data("test_data/data.json");
         assert!(config_data.is_ok());
-        let config_data: ConfigData<Point2D> = config_data.unwrap();
+        let config_data: ConfigData<Population, Point2D> = config_data.unwrap();
         let graph = config_data.graph;
         let regions = config_data.regions;
 

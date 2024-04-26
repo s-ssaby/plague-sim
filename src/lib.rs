@@ -14,7 +14,7 @@ pub mod simulation_geography;
 #[cfg(test)]
 mod tests {
 
-    use crate::{location::Point2D, region::{Port, PortID}, transportation_graph::PortGraph};
+    use crate::{location::Point2D, population_types::population::Population, region::{Port, PortID}, transportation_graph::PortGraph};
 
     use self::region::Region;
     use super::*;
@@ -22,14 +22,14 @@ mod tests {
     #[test]
     fn it_works() {
         // create countries
-        let mut us = Region::new("United States".to_string(), 1000);
+        let mut us = Region::new("United States".to_string(), Population::new_healthy(1000));
         let mut us_ports = vec![];
         let us_port1 = us.add_port(PortID::new(0), 100, Point2D::default());
         let us_port2 = us.add_port(PortID::new(1), 200, Point2D::default());
         us_ports.push(us_port1);
         us_ports.push(us_port2);
 
-        let mut china = Region::new("China".to_string(), 10000);
+        let mut china = Region::new("China".to_string(), Population::new_healthy(10000));
         let mut china_ports = vec![];
         let china_port1 = china.add_port(PortID::new(2), 100, Point2D::default());
         let china_port2 = china.add_port(PortID::new(3), 200, Point2D::default());

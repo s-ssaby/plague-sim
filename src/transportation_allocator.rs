@@ -87,11 +87,11 @@ mod test {
     /** This test may pass or fail by random chance */
     #[test]
     fn random_transport_allocator() {
-        let mut brazil: Region<Point2D> = Region::new("Brazil".to_owned(), 50000);
+        let mut brazil: Region<Point2D> = Region::new("Brazil".to_owned(), Population::new_healthy(50000));
         brazil.population = Population::new_random(50000);
         let braz_port = brazil.add_port(PortID(0), 500, Point2D::new(0.0, 0.0));
 
-        let mut benin: Region<Point2D> = Region::new("Benin".to_owned(), 30000);
+        let mut benin: Region<Point2D> = Region::new("Benin".to_owned(), Population::new_healthy(30000));
         let benin_port = benin.add_port(PortID(1), 500, Point2D::new(10.0, 2.0));
         benin.population = Population::new_random(30000);
 

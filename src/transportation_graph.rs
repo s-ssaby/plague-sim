@@ -161,14 +161,14 @@ impl <T> PortGraph <T> where T: Location {
 mod tests {
 
 
-    use crate::{location::Point2D, region::Region};
+    use crate::{location::Point2D, population_types::population::Population, region::Region};
 
     use super::*;
 
     #[test]
     fn graph_add_ports() {
-        let mut america = Region::new("America".to_owned(), 3000);
-        let mut europe = Region::new("Europe".to_owned(), 5000);
+        let mut america = Region::new("America".to_owned(), Population::new_healthy(3000));
+        let mut europe = Region::new("Europe".to_owned(), Population::new_healthy(5000));
         let mut american_ports: Vec<Port<Point2D>> = vec![];
         let mut europe_ports: Vec<Port<Point2D>> = vec![];
         

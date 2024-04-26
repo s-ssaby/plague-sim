@@ -133,14 +133,14 @@ impl<P, T> Region <P, T> where T: Location, P: PopulationType {
 
 #[cfg(test)]
 mod tests {
-    use crate::{location::Point2D, region::PortID};
+    use crate::{location::Point2D, population_types::population::Population, region::PortID};
 
     use super::{Region};
     
 
     #[test]
     fn region_find_port_test() {
-        let mut country = Region::new("Super".to_owned(), 100);
+        let mut country = Region::new("Super".to_owned(), Population::new_healthy(100));
         let small_port = country.add_port(PortID(0), 100, Point2D::default());
         let big_port = country.add_port(PortID(1), 1000, Point2D::default());
 
@@ -152,8 +152,8 @@ mod tests {
 
     #[test]
     fn region_construction_test() {
-        let mut country = Region::new("Super".to_owned(), 100);
-        let mut big_country = Region::new("Mega".to_owned(), 1_000_000);
+        let mut country = Region::new("Super".to_owned(), Population::new_healthy(100));
+        let mut big_country = Region::new("Mega".to_owned(), Population::new_healthy(1_000_000));
 
         let small_port = country.add_port(PortID::new(0), 100, Point2D::default());
         let big_port = country.add_port(PortID::new(1), 1000, Point2D::default());
