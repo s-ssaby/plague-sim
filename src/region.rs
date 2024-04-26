@@ -4,7 +4,7 @@ use std::{fmt::{write, Display}, sync::atomic::AtomicU32};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{location::{Location, Point2D}, population_types::population::Population};
+use crate::{location::{Location, Point2D}, population_types::{population::Population, PopulationType}};
 
 
 
@@ -88,22 +88,16 @@ impl Display for RegionID {
 // Invariants to be preserved
 // RegionID always matched RegionID of ports it contains
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Region<T = Point2D> where T: Location {
+pub struct Region<P = Population, T = Point2D> where T: Location, P: PopulationType {
     id: RegionID,
     pub name: String,
-    pub population: Population,
+    pub population: P,
     ports: Vec<Port<T>>
 }
 
-impl<T> Region <T> where T: Location {
-    /** Creates region of healthy people */
-    pub fn new(name: String, initial_pop: u32) -> Self {
-        let id = RegionID::new();
-        Region {name, population: Population::new_healthy(initial_pop), ports: vec![], id }
-    }
-
-    /** Creates region of people with specified population distribution */
-    pub fn new_custom(name: String, initial_pop: Population) -> Self {
+impl<P, T> Region <P, T> where T: Location, P: PopulationType {
+    /** Creates region of people with specified population*/
+    pub fn new(name: String, initial_pop: P) -> Self {
         let id = RegionID::new();
         Region {name, population: initial_pop, ports: vec![], id }
     }
