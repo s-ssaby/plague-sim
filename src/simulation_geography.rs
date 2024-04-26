@@ -1,6 +1,6 @@
 use std::{fmt::format, slice::Iter};
 
-use crate::{location::{Location, Point2D}, population_types::population::Population, region::{Port, PortID, Region, RegionID}, transportation_graph::PortGraph};
+use crate::{location::{Location, Point2D}, population_types::{population::Population, PopulationType}, region::{Port, PortID, Region, RegionID}, transportation_graph::PortGraph};
 
 /// Responsible for storing simulation geography data and communicating changes across its components
 /// 
@@ -9,15 +9,15 @@ use crate::{location::{Location, Point2D}, population_types::population::Populat
 /// Assumes that every port in all the regions has a unique ID
 /// 
 /// Assumes that all ports contained in the regions are the same as all the ports in the graph
-pub struct SimulationGeography<T = Point2D> where T: Location {
+pub struct SimulationGeography<P: PopulationType, T = Point2D> where P: PopulationType, T: Location {
     graph: PortGraph<T>,
-    regions: Vec<Region<T>>
+    regions: Vec<Region<P, T>>
 }
 
 // Invariants:
 // If a port with a certain ID exists in both graph and regions, their states must be equal
-impl<T> SimulationGeography <T> where T: Location {
-    pub fn new(graph: PortGraph<T>, regions: Vec<Region<T>>) -> Self {
+impl<P, T> SimulationGeography <P, T> where T: Location, P: PopulationType {
+    pub fn new(graph: PortGraph<T>, regions: Vec<Region<P, T>>) -> Self {
         Self { graph, regions }
     }
 
@@ -32,11 +32,11 @@ impl<T> SimulationGeography <T> where T: Location {
     }
 
     /* Find region with given ID, if it exists */
-    pub fn get_region(&self, region_id: RegionID) -> Option<&Region<T>> {
+    pub fn get_region(&self, region_id: RegionID) -> Option<&Region<P, T>> {
         self.regions.iter().find(|region| region.id() == region_id)
     }
 
-    fn get_region_mut(&mut self, region_id: RegionID) -> Option<&mut Region<T>> {
+    fn get_region_mut(&mut self, region_id: RegionID) -> Option<&mut Region<P, T>> {
         self.regions.iter_mut().find(|region| region.id() == region_id)
     }
 
@@ -83,7 +83,7 @@ impl<T> SimulationGeography <T> where T: Location {
     }
 
     /* Returns contained regions */
-    pub fn get_regions(&self) -> Iter<'_, Region<T>> {
+    pub fn get_regions(&self) -> Iter<'_, Region<P, T>> {
         self.regions.iter()
     }
 

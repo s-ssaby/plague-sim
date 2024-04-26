@@ -2,17 +2,17 @@ use std::{error::Error, fs, path::Path};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{location::{Location, Point2D}, region::{Port, PortID, Region}, transportation_graph::PortGraph};
+use crate::{location::{Location, Point2D}, population_types::{population::Population, PopulationType}, region::{Port, PortID, Region}, transportation_graph::PortGraph};
 
 /** Responsible for holding configuration data of plague simulation */
 #[derive(Deserialize, Serialize)]
-pub struct ConfigData <T = Point2D> where T: Location{
-    pub regions: Vec<Region<T>>,
+pub struct ConfigData <P = Population, T = Point2D> where T: Location, P: PopulationType{
+    pub regions: Vec<Region<P, T>>,
     pub graph: PortGraph<T>
 }
 
-impl <T> ConfigData <T> where T: Location {
-    pub fn new(regions: Vec<Region<T>>, graph: PortGraph<T>) -> Self{
+impl <P, T> ConfigData <P, T> where T: Location, P: PopulationType {
+    pub fn new(regions: Vec<Region<P, T>>, graph: PortGraph<T>) -> Self{
         Self { regions, graph}
     }
 }
