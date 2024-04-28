@@ -41,22 +41,22 @@ impl<P: PopulationType, T: Location> TransportAllocator <P, T> for RandomTranspo
                     }
                     let transported_population;
                     // transport entire population
-                    if random_pop >= start_region.population.get_total() {
-                        transported_population = start_region.population;
+                    if random_pop >= start_region.population.population().get_total() {
+                        transported_population = start_region.population.population();
                     } 
                     // transport only portion
                     else {
-                        let scale_factor = (random_pop as f64)/(start_region.population.get_total() as f64);
-                        transported_population = start_region.population.scale(scale_factor);
+                        let scale_factor = (random_pop as f64)/(start_region.population.population().get_total() as f64);
+                        transported_population = start_region.population.population().scale(scale_factor);
                     }
-                    debug_assert!(transported_population.healthy <= start_region.population.healthy, "{}", 
-                    format!("Unable to remove {} healthy from {} healthy", transported_population.healthy, start_region.population.healthy));
-                    debug_assert!(transported_population.dead <= start_region.population.dead, "{}", 
-                    format!("Unable to remove {} dead from {} dead", transported_population.dead, start_region.population.dead));
-                    debug_assert!(transported_population.infected <= start_region.population.infected, "{}", 
-                    format!("Unable to remove {} infected from {} infected", transported_population.infected, start_region.population.infected));
-                    debug_assert!(transported_population.recovered <= start_region.population.recovered, "{}", 
-                    format!("Unable to remove {} recovered from {} recovered", transported_population.recovered, start_region.population.recovered));
+                    debug_assert!(transported_population.healthy <= start_region.population.population().healthy, "{}", 
+                    format!("Unable to remove {} healthy from {} healthy", transported_population.healthy, start_region.population.population().healthy));
+                    debug_assert!(transported_population.dead <= start_region.population.population().dead, "{}", 
+                    format!("Unable to remove {} dead from {} dead", transported_population.dead, start_region.population.population().dead));
+                    debug_assert!(transported_population.infected <= start_region.population.population().infected, "{}", 
+                    format!("Unable to remove {} infected from {} infected", transported_population.infected, start_region.population.population().infected));
+                    debug_assert!(transported_population.recovered <= start_region.population.population().recovered, "{}", 
+                    format!("Unable to remove {} recovered from {} recovered", transported_population.recovered, start_region.population.population().recovered));
                     // TODO! Change time calculation later to allow changes in speed
                     let distance = start_port.pos.distance(&dest.pos) as u32;
                     Some(vec![TransportJob {start_region: start_region.id(), start_port: start_port.id, end_region: dest.region, end_port: dest.id, population: transported_population, time: distance}])
@@ -87,11 +87,11 @@ mod test {
     /** This test may pass or fail by random chance */
     #[test]
     fn random_transport_allocator() {
-        let mut brazil: Region<Point2D> = Region::new("Brazil".to_owned(), Population::new_healthy(50000));
+        let mut brazil: Region = Region::new("Brazil".to_owned(), Population::new_healthy(50000));
         brazil.population = Population::new_random(50000);
         let braz_port = brazil.add_port(PortID(0), 500, Point2D::new(0.0, 0.0));
 
-        let mut benin: Region<Point2D> = Region::new("Benin".to_owned(), Population::new_healthy(30000));
+        let mut benin: Region = Region::new("Benin".to_owned(), Population::new_healthy(30000));
         let benin_port = benin.add_port(PortID(1), 500, Point2D::new(10.0, 2.0));
         benin.population = Population::new_random(30000);
 
