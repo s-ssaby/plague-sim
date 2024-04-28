@@ -3,7 +3,8 @@
 
 use std::{fs::File, io::Write};
 
-use functionality::{config::{load_config_data, ConfigData}, location::Point2D, region::{PortID, Region}, region_transportation_mediator::RegionTransportationMediator, transportation_allocator::RandomTransportAllocator, transportation_graph::PortGraph};
+use functionality::{config::ConfigData, location::Point2D, population_types::population::Population, region::{PortID, Region}, transportation_graph::PortGraph};
+
 fn main() {
     // let config_data = load_config_data("test_data/data.json").unwrap();
     // // create mediator, add regions
@@ -17,20 +18,20 @@ fn main() {
     //     println!("{}", med.statistics.in_transit.get_total() + med.statistics.region_population.get_total());
     // }   
 
-    let mut us: Region<Point2D> = Region::new("North America".to_owned(), 5000);
+    let mut us: Region = Region::new("North America".to_owned(), Population::new_healthy(5000));
     let us_port_top_left = us.add_port(PortID(0), 500, Point2D::new(50.0, 50.0));
     let us_port_top_right = us.add_port(PortID(1), 500, Point2D::new(100.0, 50.0));
     let us_port_bottom_left = us.add_port(PortID(2), 500, Point2D::new(100.0, 50.0));
     let us_port_bottom_right = us.add_port(PortID(3), 500, Point2D::new(100.0, 100.0));
 
-    let mut brazil: Region<Point2D> = Region::new("Brazil".to_owned(), 3000);
+    let mut brazil: Region = Region::new("Brazil".to_owned(), Population::new_healthy(3000));
     let brasil_port_top_left = brazil.add_port(PortID(4), 700, Point2D::new(50.0, 170.0));
     let brasil_port_top_right = brazil.add_port(PortID(5), 1000, Point2D::new(150.0, 210.0));
 
-    let mut asia: Region<Point2D> = Region::new("Asia".to_owned(), 30000);
+    let mut asia: Region = Region::new("Asia".to_owned(), Population::new_healthy(30000));
     let asia_port = asia.add_port(PortID(6), 5000, Point2D::new(400.0, 50.0));
 
-    let mut africa: Region<Point2D> = Region::new("Africa".to_owned(), 20000);
+    let mut africa: Region = Region::new("Africa".to_owned(), Population::new_healthy(20000));
     let africa_port = africa.add_port(PortID(7), 5000, Point2D::new(300.0, 300.0));
 
     let mut graph: PortGraph<Point2D> = PortGraph::new();
