@@ -53,12 +53,12 @@ impl<P, T> SimulationGeography <P, T> where T: Location, P: PopulationType {
 
     /* Set population of specified region, if it exists */
     pub fn set_population(&mut self, region_id: RegionID, population: Population) -> Result<(), String> {
-        self.get_region_mut(region_id).map(|region| region.population = population).ok_or(format!("Cannot find region ID {}", region_id))
+        self.get_region_mut(region_id).map(|region| region.population.set_population(population)).ok_or(format!("Cannot find region ID {}", region_id))
     }
 
     /* Add given population to population of specified region, if it exists */
     pub fn add_population(&mut self, region_id: RegionID, population: Population) -> Result<(), String> {
-        self.get_region_mut(region_id).map(|region| region.population = region.population + population).ok_or(format!("Cannot find region ID {}", region_id))
+        self.get_region_mut(region_id).map(|region| region.population.set_population(region.population.population() + population)).ok_or(format!("Cannot find region ID {}", region_id))
     }
 
     /// Removes given population from region, if found
@@ -69,10 +69,10 @@ impl<P, T> SimulationGeography <P, T> where T: Location, P: PopulationType {
         let region = self.get_region_mut(region_id);
         match region {
             Some(unwrapped_region) => {
-                let resulting_pop = unwrapped_region.population.emigrate(population);
+                let resulting_pop = unwrapped_region.population.population().emigrate(population);
                 match resulting_pop {
                     Ok(new_pop) => {
-                        unwrapped_region.population = new_pop;
+                        unwrapped_region.population.set_population(new_pop);
                         Ok(())
                     },
                     Err(e) => Err(e),
