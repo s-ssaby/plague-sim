@@ -47,8 +47,9 @@ impl<P, T> SimulationGeography <P, T> where T: Location, P: PopulationType {
 
 
     /* Returns population of specified region, if it exists */
-    pub fn get_population(&self, region_id: RegionID) -> Option<P> {
-        self.get_region(region_id).map(|region| region.population)
+    pub fn get_population(&self, region_id: RegionID) -> Option<&P> {
+        let region = self.get_region(region_id);
+        region.map(|some_region| &some_region.population)
     }
 
     /* Set population of specified region, if it exists */
