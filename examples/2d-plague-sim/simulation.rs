@@ -84,7 +84,10 @@ impl<'a, A ,P,T> Simulation<A, P, T> where A: Location + 'a, P: PopulationType +
 
         // make people depart from regions after newly created jobs
         for job in &all_new_jobs {
-            self.geography.subtract_population(job.job.start_region, job.job.population);
+            match self.geography.subtract_population(job.job.start_region, job.job.population) {
+                Ok(_) => (),
+                Err(e) => panic!("{}", format!("Failed to subtract {} people from region population of {} people. Error: {}", job.job.population.get_total(), self.geography.get_region(job.job.start_region).unwrap().population.population().get_total(), e))
+            }
         }
 
         self.ongoing_transport.extend(all_new_jobs);
