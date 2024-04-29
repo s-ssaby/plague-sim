@@ -53,8 +53,6 @@ impl<'a, A ,P,T> Simulation<A, P, T> where A: Location + 'a, P: PopulationType +
     // create interactions between regions for each region
     // also updates populations of regions when people leave
     pub fn update(&mut self) {
-        // for debugging purposes
-        let start_population = self.statistics.region_population.get_total() + self.statistics.in_transit.get_total();
         // process jobs
         self.ongoing_transport.retain_mut(|job| {
             if job.job.time == 0 {
@@ -80,6 +78,9 @@ impl<'a, A ,P,T> Simulation<A, P, T> where A: Location + 'a, P: PopulationType +
             let new_jobs = Self::calculate_transport_jobs(&mut self.geography, region, &self.allocator);
             &all_new_jobs.extend(new_jobs);
         }
+
+        // for debugging purposes
+        let start_population = self.statistics.region_population.get_total() + self.statistics.in_transit.get_total();
 
         // make people depart from regions after newly created jobs
         for job in &all_new_jobs {
