@@ -53,6 +53,8 @@ impl<'a, A ,P,T> Simulation<A, P, T> where A: Location + 'a, P: PopulationType +
     // create interactions between regions for each region
     // also updates populations of regions when people leave
     pub fn update(&mut self) {
+        // for debugging purposes
+        let start_population = self.statistics.region_population.get_total() + self.statistics.in_transit.get_total();
         // process jobs
         self.ongoing_transport.retain_mut(|job| {
             if job.job.time == 0 {
@@ -76,21 +78,26 @@ impl<'a, A ,P,T> Simulation<A, P, T> where A: Location + 'a, P: PopulationType +
         // generate new jobs
         for region in self.geography.get_region_ids() {
             let new_jobs = Self::calculate_transport_jobs(&mut self.geography, region, &self.allocator);
-            all_new_jobs.extend(new_jobs);
+            &all_new_jobs.extend(new_jobs);
         }
 
+        // make people depart from regions after newly created jobs
+        for job in &all_new_jobs {
+            self.geography.subtract_population(job.job.start_region, job.job.population);
+        }
 
         self.ongoing_transport.extend(all_new_jobs);
 
         // update stats
-        self.update_statistics()
+        self.update_statistics();
+
+        debug_assert_eq!(start_population, self.statistics.region_population.population().get_total() + self.statistics.in_transit.get_total())
     }
 
     // calculate transport jobs for a region
-    fn calculate_transport_jobs(geography: &mut SimulationGeography<P, A>, region_id: RegionID, allocator: &T) -> Vec<InProgressJob> {
+    fn calculate_transport_jobs(geography: &SimulationGeography<P, A>, region_id: RegionID, allocator: &T) -> Vec<InProgressJob> {
         let mut new_jobs: Vec<InProgressJob> = vec![];
         
-        {
         let region = geography.get_region(region_id).unwrap();
         // look at each port
         for port in region.get_ports() {
@@ -108,12 +115,6 @@ impl<'a, A ,P,T> Simulation<A, P, T> where A: Location + 'a, P: PopulationType +
                     Err(e) => panic!("{}", e),
                 }
             }
-        }
-        }
-
-        // now modify region
-        for job in &new_jobs {
-            geography.subtract_population(region_id, job.job.population);
         }
         new_jobs
     }
