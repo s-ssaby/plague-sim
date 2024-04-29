@@ -129,3 +129,89 @@ impl InProgressJob {
         Self {expected_time: job.time, job}
     }
 }
+
+#[cfg(test)]
+mod tests {
+
+
+    use functionality::{config::{load_config_data, ConfigData}, location::Point2D, population_types::population::Population, region::{PortID, Region}, simulation_geography::SimulationGeography, transportation_allocator::RandomTransportAllocator, transportation_graph::PortGraph};
+
+
+    use super::Simulation;
+
+
+    #[test]
+    /** Tests simulations where all transport connections occur within same region */
+    fn test_intra_country_transport() {
+        let china_pop = 5000;
+        let mut china = Region::new("China".to_owned(), Population::new_healthy(5000));
+        let port1 = china.add_port(PortID(1), 100, Point2D::default());
+        let port2 = china.add_port(PortID(2), 200, Point2D::default());
+        let port3 = china.add_port(PortID(3), 500, Point2D::default());
+        let port4 = china.add_port(PortID(4), 50, Point2D::default());
+
+        let mut graph = PortGraph::new();
+        graph.add_port(port1);
+        graph.add_port(port2);
+        graph.add_port(port3);
+        graph.add_port(port4);
+
+        graph.add_directed_connection(PortID(1), PortID(2));
+        graph.add_directed_connection(PortID(2), PortID(3));
+        graph.add_directed_connection(PortID(3), PortID(4));
+        graph.add_directed_connection(PortID(4), PortID(1));
+        graph.add_directed_connection(PortID(3), PortID(1));
+
+        // make simulation
+        let mut sim: Simulation<Point2D, Population, RandomTransportAllocator> = Simulation::new(SimulationGeography::new(graph, vec![china]), RandomTransportAllocator::new(1.0));
+
+        // make sure that number of people living in regions plus number in transit always stays same
+        let total = sim.statistics.in_transit + sim.statistics.region_population;
+        for _ in 0..=20 {
+            sim.update();
+            assert_eq!(sim.statistics.in_transit + sim.statistics.region_population, total);
+        }
+    }
+
+    #[test]
+    /** Tests simulations where all transport connections occur only between different regions */
+    fn test_inter_country_transport() {
+        let config = load_config_data("test_data/data.json").unwrap();
+     
+        // make simulation
+        let mut sim: Simulation<Point2D, Population, RandomTransportAllocator> = Simulation::new(SimulationGeography::new(config.graph, config.regions), RandomTransportAllocator::new(1.0));
+
+        // make sure that number of people living in regions plus number in transit always stays same
+        let total = sim.statistics.in_transit + sim.statistics.region_population;
+        for _ in 0..=20 {
+            sim.update();
+            assert_eq!(sim.statistics.in_transit + sim.statistics.region_population, total);
+        }
+    }
+
+    #[test]
+    /** Tests simulations where both inter and intra country transport occurs */
+    fn test_all_transport() {
+        let config: ConfigData = load_config_data("test_data/data.json").unwrap();
+
+        let mut graph = config.graph;
+        // add all possible connections, ignoring errors
+        for start_id in 0..=10 {
+            for end_id in 0..=10 {
+                let _ = graph.add_directed_connection(PortID(start_id), PortID(end_id));
+            }
+        }
+
+        // create mediator, add regions
+        // make simulation
+        let mut sim: Simulation<Point2D, Population, RandomTransportAllocator> = Simulation::new(SimulationGeography::new(graph, config.regions), RandomTransportAllocator::new(1.0));
+
+        // make sure that number of people living in regions plus number in transit always stays same
+        let total = sim.statistics.in_transit + sim.statistics.region_population;
+        for _ in 0..=20 {
+            sim.update();
+            assert_eq!(sim.statistics.in_transit + sim.statistics.region_population, total);
+        }
+    }
+}
+
