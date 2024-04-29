@@ -79,9 +79,13 @@ impl<P, T> SimulationGeography <P, T> where T: Location, P: PopulationType {
         let region = self.get_region_mut(region_id);
         match region {
             Some(unwrapped_region) => {
+                // for debugging purposes
+                let start_pop = unwrapped_region.population.population().get_total();
+
                 let resulting_pop = unwrapped_region.population.population().emigrate(population);
                 match resulting_pop {
                     Ok(new_pop) => {
+                        debug_assert_eq!(start_pop, new_pop.get_total() + population.get_total());
                         unwrapped_region.population.set_population(new_pop);
                         Ok(new_pop)
                     },
