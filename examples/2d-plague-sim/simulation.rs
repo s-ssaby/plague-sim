@@ -80,7 +80,8 @@ impl<'a, A ,P,T> Simulation<A, P, T> where A: Location + 'a, P: PopulationType +
         }
 
         // for debugging purposes
-        let start_population = self.statistics.region_population.get_total() + self.statistics.in_transit.get_total();
+        let start_region_population = self.statistics.region_population.get_total();
+        let start_transit_population = self.statistics.in_transit.get_total();
 
         // make people depart from regions after newly created jobs
         for job in &all_new_jobs {
@@ -95,7 +96,14 @@ impl<'a, A ,P,T> Simulation<A, P, T> where A: Location + 'a, P: PopulationType +
         // update stats
         self.update_statistics();
 
-        debug_assert_eq!(start_population, self.statistics.region_population.population().get_total() + self.statistics.in_transit.get_total())
+        // for debugging purposes
+        let end_region_population = self.statistics.region_population.get_total();
+        let end_transit_population = self.statistics.in_transit.get_total();
+
+        debug_assert_eq!(start_region_population + start_transit_population, 
+            end_region_population + end_transit_population,
+            "{}", format!("Previous region population: {} Previous transit population: {} New region population: {} New transit population: {}",
+            start_region_population, start_transit_population, end_region_population, end_transit_population));
     }
 
     // calculate transport jobs for a region
