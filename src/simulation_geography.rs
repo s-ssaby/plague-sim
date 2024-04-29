@@ -63,10 +63,11 @@ impl<P, T> SimulationGeography <P, T> where T: Location, P: PopulationType {
     }
 
     /// Removes given population from region, if found
+    /// Returns new population of region
     /// # Errors
     /// * Fails if region ID not found
     /// * Fails if the given population cannot be subtracted from the region's population
-    pub fn subtract_population(&mut self, region_id: RegionID, population: Population) -> Result<(), String> {
+    pub fn subtract_population(&mut self, region_id: RegionID, population: Population) -> Result<Population, String> {
         let region = self.get_region_mut(region_id);
         match region {
             Some(unwrapped_region) => {
@@ -74,7 +75,7 @@ impl<P, T> SimulationGeography <P, T> where T: Location, P: PopulationType {
                 match resulting_pop {
                     Ok(new_pop) => {
                         unwrapped_region.population.set_population(new_pop);
-                        Ok(())
+                        Ok(new_pop)
                     },
                     Err(e) => Err(e),
                 }
