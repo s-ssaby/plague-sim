@@ -58,8 +58,16 @@ impl<P, T> SimulationGeography <P, T> where T: Location, P: PopulationType {
     }
 
     /* Add given population to population of specified region, if it exists */
-    pub fn add_population(&mut self, region_id: RegionID, population: Population) -> Result<(), String> {
-        self.get_region_mut(region_id).map(|region| region.population.set_population(region.population.population() + population)).ok_or(format!("Cannot find region ID {}", region_id))
+    pub fn add_population(&mut self, region_id: RegionID, population: Population) -> Result<Population, String> {
+        let region = self.get_region_mut(region_id);
+        match region {
+            Some(unwrapped_region) => {
+                let resulting_pop = unwrapped_region.population.population() + population;
+                Ok(resulting_pop)
+            },
+            None => Err(format!("Cannot find region ID {}", region_id)),
+        }
+    
     }
 
     /// Removes given population from region, if found
