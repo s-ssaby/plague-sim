@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use functionality::{config::load_config_data, location::Point2D, region::RegionID, simulation_geography::SimulationGeography, transportation_allocator::RandomTransportAllocator};
+use functionality::{config::load_config_data, location::Point2D, population_types::population::Population, region::RegionID, simulation_geography::SimulationGeography, transportation_allocator::RandomTransportAllocator};
 use macroquad::{miniquad::window::set_window_size, prelude::*};
 use simulation::Simulation;
 mod simulation;
@@ -12,7 +12,7 @@ async fn main() {
     let graph = config_data.graph;
     let regions = config_data.regions;
 
-    let mut simulation: Simulation<Point2D, RandomTransportAllocator> = Simulation::<Point2D, RandomTransportAllocator>::new(SimulationGeography::new(graph, regions), RandomTransportAllocator::new(0.01));
+    let mut simulation: Simulation<Point2D, Population, RandomTransportAllocator> = Simulation::new(SimulationGeography::new(graph, regions), RandomTransportAllocator::new(0.01));
 
     // TODO: Create a separate loop for simulation, let rendering be own loop
 
