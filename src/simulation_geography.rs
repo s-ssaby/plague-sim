@@ -63,6 +63,8 @@ impl<P, T> SimulationGeography <P, T> where T: Location, P: PopulationType {
         match region {
             Some(unwrapped_region) => {
                 let resulting_pop = unwrapped_region.population.population() + population;
+                // add population
+                unwrapped_region.population.set_population(resulting_pop);
                 Ok(resulting_pop)
             },
             None => Err(format!("Cannot find region ID {}", region_id)),
