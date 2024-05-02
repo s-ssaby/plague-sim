@@ -8,7 +8,7 @@ use crate::{location::{Location, Point2D}, population_types::{population::Popula
 /// 
 /// Assumes that every port in all the regions has a unique ID
 /// 
-/// Assumes that all ports contained in the regions are the same as all the ports in the graph
+/// Assumes that all ports contained in the regions are the same as all the ports in the graph and have the same state
 pub struct SimulationGeography<P: PopulationType, T = Point2D> where P: PopulationType, T: Location {
     graph: PortGraph<T>,
     regions: Vec<Region<P, T>>
@@ -16,6 +16,7 @@ pub struct SimulationGeography<P: PopulationType, T = Point2D> where P: Populati
 
 // Invariants:
 // If a port with a certain ID exists in both graph and regions, their states must be equal
+// Every port contained within the regions must be contained in the graph and vice versa
 impl<P, T> SimulationGeography <P, T> where T: Location, P: PopulationType {
     pub fn new(graph: PortGraph<T>, regions: Vec<Region<P, T>>) -> Self {
         Self { graph, regions }
