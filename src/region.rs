@@ -4,7 +4,7 @@ use std::{fmt::{write, Display}, sync::atomic::AtomicU32};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{location::{Location, Point2D}, population_types::{population::Population, PopulationType}};
+use crate::{point::{Location, Point2D}, population_types::{population::Population, PopulationType}};
 
 
 
@@ -133,7 +133,7 @@ impl<P, T> Region <P, T> where T: Location, P: PopulationType {
 
 #[cfg(test)]
 mod tests {
-    use crate::{location::Point2D, population_types::population::Population, region::PortID};
+    use crate::{point::Point2D, population_types::population::Population, region::PortID};
 
     use super::{Region};
     

@@ -3,7 +3,7 @@
 
 use std::{fs::File, io::Write};
 
-use functionality::{config::ConfigData, location::Point2D, population_types::population::Population, region::{PortID, Region}, transportation_graph::PortGraph};
+use functionality::{config::ConfigData, point::Point2D, population_types::population::Population, region::{PortID, Region}, transportation_graph::PortGraph};
 
 fn main() {
     // let config_data = load_config_data("test_data/data.json").unwrap();

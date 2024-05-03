@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use functionality::{config::load_config_data, location::Point2D, population_types::population::Population, region::RegionID, simulation_geography::SimulationGeography, transportation_allocator::RandomTransportAllocator};
+use functionality::{config::load_config_data, point::Point2D, population_types::population::Population, region::RegionID, simulation_geography::SimulationGeography, transportation_allocator::RandomTransportAllocator};
 use macroquad::{miniquad::window::set_window_size, prelude::*};
 use simulation::Simulation;
 mod simulation;

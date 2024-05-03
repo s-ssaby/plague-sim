@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use functionality::{location::Location, population_types::{population::Population, PopulationType}, region::{Region, RegionID}, simulation_geography::SimulationGeography, transportation_allocator::{TransportAllocator, TransportJob}};
+use functionality::{point::Location, population_types::{population::Population, PopulationType}, region::{Region, RegionID}, simulation_geography::SimulationGeography, transportation_allocator::{TransportAllocator, TransportJob}};
 
 
 
@@ -147,7 +147,7 @@ impl InProgressJob {
 mod tests {
 
 
-    use functionality::{config::{load_config_data, ConfigData}, location::Point2D, population_types::population::Population, region::{PortID, Region}, simulation_geography::SimulationGeography, transportation_allocator::RandomTransportAllocator, transportation_graph::PortGraph};
+    use functionality::{config::{load_config_data, ConfigData}, point::Point2D, population_types::population::Population, region::{PortID, Region}, simulation_geography::SimulationGeography, transportation_allocator::RandomTransportAllocator, transportation_graph::PortGraph};
 
 
     use super::Simulation;

@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{location::{Location, Point2D}, region::{Port, PortID}};
+use crate::{point::{Location, Point2D}, region::{Port, PortID}};
 
 
 
@@ -161,7 +161,7 @@ impl <T> PortGraph <T> where T: Location {
 mod tests {
 
 
-    use crate::{location::Point2D, population_types::population::Population, region::Region};
+    use crate::{point::Point2D, population_types::population::Population, region::Region};
 
     use super::*;
 

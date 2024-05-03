@@ -2,7 +2,7 @@ use std::{error::Error, fs, path::Path};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{location::{Location, Point2D}, population_types::{population::Population, PopulationType}, region::{Port, PortID, Region}, transportation_graph::PortGraph};
+use crate::{point::{Location, Point2D}, population_types::{population::Population, PopulationType}, region::{Port, PortID, Region}, transportation_graph::PortGraph};
 
 /** Responsible for holding configuration data of plague simulation */
 #[derive(Deserialize, Serialize)]
@@ -26,7 +26,7 @@ pub fn load_config_data<P>(config_data_path: P) -> Result<ConfigData, Box<dyn Er
 
 #[cfg(test)]
 mod tests {
-    use crate::{config::{load_config_data, ConfigData}, location::Point2D, population_types::population::Population, region::PortID};
+    use crate::{config::{load_config_data, ConfigData}, point::Point2D, population_types::population::Population, region::PortID};
 
 
     #[test]

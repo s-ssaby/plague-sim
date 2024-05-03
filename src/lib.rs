@@ -7,14 +7,14 @@ pub mod population_types;
 pub mod config;
 pub mod transportation_allocator;
 pub mod math_utils;
-pub mod location;
+pub mod point;
 pub mod simulation_geography;
 
 
 #[cfg(test)]
 mod tests {
 
-    use crate::{location::Point2D, population_types::population::Population, region::{Port, PortID}, transportation_graph::PortGraph};
+    use crate::{point::Point2D, population_types::population::Population, region::{Port, PortID}, transportation_graph::PortGraph};
 
     use self::region::Region;
     use super::*;
