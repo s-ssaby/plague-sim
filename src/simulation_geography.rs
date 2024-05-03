@@ -1,6 +1,6 @@
 use std::{fmt::format, slice::Iter};
 
-use crate::{point::{Location, Point2D}, population_types::{population::Population, PopulationType}, region::{Port, PortID, Region, RegionID}, transportation_graph::PortGraph};
+use crate::{point::{ Point2D}, population_types::{population::Population, PopulationType}, region::{Port, PortID, Region, RegionID}, transportation_graph::PortGraph};
 
 /// Responsible for storing simulation geography data and communicating changes across its components
 /// 
@@ -9,20 +9,20 @@ use crate::{point::{Location, Point2D}, population_types::{population::Populatio
 /// Assumes that every port in all the regions has a unique ID
 /// 
 /// Assumes that all ports contained in the regions are the same as all the ports in the graph and have the same state
-pub struct SimulationGeography<P: PopulationType, T = Point2D> where P: PopulationType, T: Location {
-    graph: PortGraph<T>,
-    regions: Vec<Region<P, T>>
+pub struct SimulationGeography<P: PopulationType> where P: PopulationType {
+    graph: PortGraph,
+    regions: Vec<Region<P>>
 }
 
 // Invariants:
 // If a port with a certain ID exists in both graph and regions, their states must be equal
 // Every port contained within the regions must be contained in the graph and vice versa
-impl<P, T> SimulationGeography <P, T> where T: Location, P: PopulationType {
-    pub fn new(graph: PortGraph<T>, regions: Vec<Region<P, T>>) -> Self {
+impl<P> SimulationGeography <P> where P: PopulationType {
+    pub fn new(graph: PortGraph, regions: Vec<Region<P>>) -> Self {
         Self { graph, regions }
     }
 
-    fn find_port_in_regions(&self, port_id: PortID) -> Option<&Port<T>> {
+    fn find_port_in_regions(&self, port_id: PortID) -> Option<&Port> {
         for region in &self.regions {
             let result = region.get_ports().iter().find(|port| port.id == port_id);
             if result.is_some() {
@@ -33,16 +33,16 @@ impl<P, T> SimulationGeography <P, T> where T: Location, P: PopulationType {
     }
 
     /* Find region with given ID, if it exists */
-    pub fn get_region(&self, region_id: RegionID) -> Option<&Region<P, T>> {
+    pub fn get_region(&self, region_id: RegionID) -> Option<&Region<P>> {
         self.regions.iter().find(|region| region.id() == region_id)
     }
 
-    fn get_region_mut(&mut self, region_id: RegionID) -> Option<&mut Region<P, T>> {
+    fn get_region_mut(&mut self, region_id: RegionID) -> Option<&mut Region<P>> {
         self.regions.iter_mut().find(|region| region.id() == region_id)
     }
 
     /* Find port with given ID, if it exists */
-    pub fn get_port(&self, port_id: PortID) -> Option<&Port<T>> {
+    pub fn get_port(&self, port_id: PortID) -> Option<&Port> {
         self.graph.get_port(port_id)
     }
 
@@ -100,7 +100,7 @@ impl<P, T> SimulationGeography <P, T> where T: Location, P: PopulationType {
     }
 
     /* Returns contained regions */
-    pub fn get_regions(&self) -> Iter<'_, Region<P, T>> {
+    pub fn get_regions(&self) -> Iter<'_, Region<P>> {
         self.regions.iter()
     }
 
@@ -110,17 +110,17 @@ impl<P, T> SimulationGeography <P, T> where T: Location, P: PopulationType {
     }
 
     /* Returns contained ports */
-    pub fn get_ports(&self) -> Vec<&Port<T>> {
+    pub fn get_ports(&self) -> Vec<&Port> {
         self.graph.get_ports()
     }
 
     /* Gets possible destination ports of a port, if it exists */
-    pub fn get_all_dest_ports(&self, id: PortID) -> Option<Vec<&Port<T>>> {
+    pub fn get_all_dest_ports(&self, id: PortID) -> Option<Vec<&Port>> {
        self.graph.get_dest_ports(id)
     }
 
     /* Gets open destination ports of a port, if it exists */
-    pub fn get_open_dest_ports(&self, id: PortID) -> Option<Vec<&Port<T>>> {
+    pub fn get_open_dest_ports(&self, id: PortID) -> Option<Vec<&Port>> {
         self.graph.get_open_dest_ports(id)
     }
 
