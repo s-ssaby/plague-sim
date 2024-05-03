@@ -4,42 +4,42 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{point::{Location, Point2D}, region::{Port, PortID}};
+use crate::{point::{Point2D}, region::{Port, PortID}};
 
 
 
 #[derive(Deserialize, Serialize, Debug)]
-struct PortNode <T> where T: Location {
-    port: Port<T>,
+struct PortNode {
+    port: Port,
     dests: Vec<PortID>
 }
 
-impl<T> PortNode<T> where T: Location {
-    pub fn new (port: Port<T>) -> Self {
+impl PortNode {
+    pub fn new (port: Port) -> Self {
         Self {port, dests: vec![]}
     }
 }
 
 /** Represents a graph of port connections */
 #[derive(Deserialize, Serialize, Debug)]
-pub struct PortGraph<T = Point2D> where T: Location {
-    port_nodes: HashMap<PortID, PortNode<T>>
+pub struct PortGraph {
+    port_nodes: HashMap<PortID, PortNode>
 }
 
 /* Ensure following invariants: */
 // Every port in ports has a reference to its corresponding port node
 // Every connection exists between nodes that exist in graph
-impl <T> PortGraph <T> where T: Location {
+impl PortGraph {
     pub fn new() -> Self{
         PortGraph {port_nodes: HashMap::new()}
     }
 
     /** Returns references to all ports in graph */
-    pub fn get_ports(&self) -> Vec<&Port<T>> {
+    pub fn get_ports(&self) -> Vec<&Port> {
         self.port_nodes.values().map(|node| &node.port).collect()
     }
 
-    pub fn add_port(&mut self, port: Port<T>) -> Result<(), String> {
+    pub fn add_port(&mut self, port: Port) -> Result<(), String> {
         let id = port.id;
         if self.in_graph(id) {
             Err(format!("Port with ID: {} already in graph", id.0))
@@ -54,15 +54,15 @@ impl <T> PortGraph <T> where T: Location {
         self.port_nodes.contains_key(&id)
     }
 
-    fn get_node(&self, id: PortID) -> Option<&PortNode<T>> {
+    fn get_node(&self, id: PortID) -> Option<&PortNode> {
         self.port_nodes.values().find(|node| node.port.id == id)
     }
 
-    fn get_mut_node(&mut self, id: PortID) -> Option<&mut PortNode<T>> {
+    fn get_mut_node(&mut self, id: PortID) -> Option<&mut PortNode> {
         self.port_nodes.values_mut().find(|node| node.port.id == id)
     }
 
-    pub fn get_port(&self, id: PortID) -> Option<&Port<T>> {
+    pub fn get_port(&self, id: PortID) -> Option<&Port> {
         let node = self.port_nodes.values().find(|node| node.port.id == id);
         match node {
             Some(node) => {
@@ -73,12 +73,12 @@ impl <T> PortGraph <T> where T: Location {
     }
 
     // gets possible destination ports of a port in graph, if it exists
-    pub fn get_dest_ports(&self, id: PortID) -> Option<Vec<&Port<T>>> {
+    pub fn get_dest_ports(&self, id: PortID) -> Option<Vec<&Port>> {
         // check if port in graph
         if !self.in_graph(id) {
             None
         } else {
-            let mut dests: Vec<&Port<T>> = vec![];
+            let mut dests: Vec<&Port> = vec![];
             let node = self.get_node(id);
             if let Some(node) = node {
                 for p_id in node.dests.iter() {
@@ -90,12 +90,12 @@ impl <T> PortGraph <T> where T: Location {
         }
     }
 
-    pub fn get_open_dest_ports(&self, id: PortID) -> Option<Vec<&Port<T>>> {
+    pub fn get_open_dest_ports(&self, id: PortID) -> Option<Vec<&Port>> {
         if !self.in_graph(id) {
             None
         } else {
             let dests = self.get_dest_ports(id).unwrap();
-            let mut open_dests: Vec<&Port<T>> = vec![];
+            let mut open_dests: Vec<&Port> = vec![];
             for dest in &dests {
                 if !dest.is_closed() {
                     open_dests.push(dest);
@@ -114,7 +114,7 @@ impl <T> PortGraph <T> where T: Location {
         else if !self.in_graph(start) || !self.in_graph(end) {
             Err(format!("At least one Port ID of {} or {} doesn't exist in graph", start.0, end.0).to_owned())
         } else {
-            let start_node: &mut PortNode<T> = self.get_mut_node(start).unwrap();
+            let start_node: &mut PortNode = self.get_mut_node(start).unwrap();
             // make sure connection doesn't already exist
             if start_node.dests.iter().any(|id| *id == end) {
                 Err(format!("Connection betweem start ID {} and end ID {} already exists in graph", start.0, end.0))
@@ -136,14 +136,14 @@ impl <T> PortGraph <T> where T: Location {
         } else {
             // use scoping to avoid having two mutable references at same time
             {
-                let port1_node: &mut PortNode<T> = self.get_mut_node(port1).unwrap();
+                let port1_node: &mut PortNode = self.get_mut_node(port1).unwrap();
                 // make sure either connection doesn't exist already
                 if port1_node.dests.iter().any(|id| *id == port2) {
                     return Err(format!("Connection betweem start ID {} and end ID {} already exists in graph", port1.0, port2.0));
                 }
             }
             {
-                let port2_node: &mut PortNode<T> = self.get_mut_node(port2).unwrap();
+                let port2_node: &mut PortNode = self.get_mut_node(port2).unwrap();
                 if port2_node.dests.iter().any(|id| *id == port1) {
                     return Err(format!("Connection betweem start ID {} and end ID {} already exists in graph", port2.0, port1.0));
                 }
@@ -169,8 +169,8 @@ mod tests {
     fn graph_add_ports() {
         let mut america = Region::new("America".to_owned(), Population::new_healthy(3000));
         let mut europe = Region::new("Europe".to_owned(), Population::new_healthy(5000));
-        let mut american_ports: Vec<Port<Point2D>> = vec![];
-        let mut europe_ports: Vec<Port<Point2D>> = vec![];
+        let mut american_ports: Vec<Port> = vec![];
+        let mut europe_ports: Vec<Port> = vec![];
         
         let amer1 = america.add_port(PortID::new(0), 150, Point2D::default());
         let amer2 = america.add_port(PortID::new(1), 170, Point2D::default());
