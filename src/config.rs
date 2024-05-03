@@ -2,17 +2,17 @@ use std::{error::Error, fs, path::Path};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{point::{Location, Point2D}, population_types::{population::Population, PopulationType}, region::{Port, PortID, Region}, transportation_graph::PortGraph};
+use crate::{point::{Point2D}, population_types::{population::Population, PopulationType}, region::{Port, PortID, Region}, transportation_graph::PortGraph};
 
 /** Responsible for holding configuration data of plague simulation */
 #[derive(Deserialize, Serialize)]
-pub struct ConfigData <P = Population, T = Point2D> where T: Location, P: PopulationType{
-    pub regions: Vec<Region<P, T>>,
-    pub graph: PortGraph<T>
+pub struct ConfigData <P = Population> where P: PopulationType{
+    pub regions: Vec<Region<P>>,
+    pub graph: PortGraph
 }
 
-impl <P, T> ConfigData <P, T> where T: Location, P: PopulationType {
-    pub fn new(regions: Vec<Region<P, T>>, graph: PortGraph<T>) -> Self{
+impl <P> ConfigData <P> where P: PopulationType {
+    pub fn new(regions: Vec<Region<P>>, graph: PortGraph) -> Self{
         Self { regions, graph}
     }
 }
@@ -20,7 +20,7 @@ impl <P, T> ConfigData <P, T> where T: Location, P: PopulationType {
 
 pub fn load_config_data<P>(config_data_path: P) -> Result<ConfigData, Box<dyn Error>> where P: AsRef<Path> {
     let regions_data = fs::read_to_string(config_data_path)?;
-    let json: ConfigData<Population, Point2D> = serde_json::from_str(&regions_data)?;
+    let json: ConfigData<Population> = serde_json::from_str(&regions_data)?;
     Ok(json)
 }
 
@@ -33,7 +33,7 @@ mod tests {
     fn test_config() {
         let config_data = load_config_data("test_data/data.json");
         assert!(config_data.is_ok());
-        let config_data: ConfigData<Population, Point2D> = config_data.unwrap();
+        let config_data: ConfigData<Population> = config_data.unwrap();
         let graph = config_data.graph;
         let regions = config_data.regions;
 

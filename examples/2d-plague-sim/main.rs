@@ -12,7 +12,7 @@ async fn main() {
     let graph = config_data.graph;
     let regions = config_data.regions;
 
-    let mut simulation: Simulation<Point2D, Population, RandomTransportAllocator> = Simulation::new(SimulationGeography::new(graph, regions), RandomTransportAllocator::new(0.01));
+    let mut simulation: Simulation<Population, RandomTransportAllocator> = Simulation::new(SimulationGeography::new(graph, regions), RandomTransportAllocator::new(0.01));
 
     // TODO: Create a separate loop for simulation, let rendering be own loop
 

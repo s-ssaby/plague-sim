@@ -61,7 +61,7 @@ mod tests {
 
         // TODO! Gross vec conversions, any way to fix?
         let us_airport_dests = port_graph.get_dest_ports(first_us_airport.id).unwrap();
-        let all_china_ports_ref: Vec<&Port<Point2D>> = china.get_ports().iter().map(|f| f).collect();
+        let all_china_ports_ref: Vec<&Port> = china.get_ports().iter().map(|f| f).collect();
         assert_eq!(us_airport_dests, all_china_ports_ref);
 
         

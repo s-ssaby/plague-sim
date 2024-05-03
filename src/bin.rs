@@ -34,7 +34,7 @@ fn main() {
     let mut africa: Region = Region::new("Africa".to_owned(), Population::new_healthy(20000));
     let africa_port = africa.add_port(PortID(7), 5000, Point2D::new(300.0, 300.0));
 
-    let mut graph: PortGraph<Point2D> = PortGraph::new();
+    let mut graph: PortGraph = PortGraph::new();
     graph.add_port(us_port_bottom_left);
     graph.add_port(us_port_top_left);
     graph.add_port(us_port_top_right);

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use functionality::{point::Location, population_types::{population::Population, PopulationType}, region::{Region, RegionID}, simulation_geography::SimulationGeography, transportation_allocator::{TransportAllocator, TransportJob}};
+use functionality::{population_types::{population::Population, PopulationType}, region::{Region, RegionID}, simulation_geography::SimulationGeography, transportation_allocator::{TransportAllocator, TransportJob}};
 
 
 
@@ -21,21 +21,21 @@ impl MediatorStatistics {
 // Controls transportation interactions between the regions it possesses
 /** Assumes that every port in provided port graph belongs to a region */
 /** Once regions added, cannot add more or take away */
-pub struct Simulation<A, P,  T> where A: Location, P: PopulationType, T: TransportAllocator<P, A>{
-    pub geography: SimulationGeography<P, A>,
+pub struct Simulation<P,  T> where P: PopulationType, T: TransportAllocator<P>{
+    pub geography: SimulationGeography<P>,
     allocator: T,
     pub ongoing_transport: Vec<InProgressJob>,
     pub statistics: MediatorStatistics
 }
 
-impl<'a, A ,P,T> Simulation<A, P, T> where A: Location + 'a, P: PopulationType + 'a, T: TransportAllocator<P, A>{
-    pub fn new(geography: SimulationGeography<P, A>, allocator: T) -> Self {
+impl<'a,P,T> Simulation< P, T> where P: PopulationType + 'a, T: TransportAllocator<P>{
+    pub fn new(geography: SimulationGeography<P>, allocator: T) -> Self {
         let total_pop = Self::calculate_regions_population(geography.get_regions());
         Self {geography, ongoing_transport: vec![], statistics: MediatorStatistics::new(total_pop), allocator}
     }
 
     /** Calculates population contained in simulation's regions */
-    fn calculate_regions_population (regions: impl Iterator<Item = &'a Region<P, A>>) -> Population {
+    fn calculate_regions_population (regions: impl Iterator<Item = &'a Region<P>>) -> Population {
         regions.map(|reg| reg.population.population()).fold(Population::new_healthy(0), |acc, pop| acc + pop.population())
     }
 
@@ -107,7 +107,7 @@ impl<'a, A ,P,T> Simulation<A, P, T> where A: Location + 'a, P: PopulationType +
     }
 
     // calculate transport jobs for a region
-    fn calculate_transport_jobs(geography: &SimulationGeography<P, A>, region_id: RegionID, allocator: &T) -> Vec<InProgressJob> {
+    fn calculate_transport_jobs(geography: &SimulationGeography<P>, region_id: RegionID, allocator: &T) -> Vec<InProgressJob> {
         let mut new_jobs: Vec<InProgressJob> = vec![];
         
         let region = geography.get_region(region_id).unwrap();

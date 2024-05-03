@@ -1,6 +1,6 @@
 // Responsible for calculating ways to allocate people to transportation
 
-use crate::{point::{Location, Point2D}, math_utils::{get_random, pick_random}, population_types::{population::Population, PopulationType}, region::{Port, PortID, Region, RegionID}};
+use crate::{point::{Point2D}, math_utils::{get_random, pick_random}, population_types::{population::Population, PopulationType}, region::{Port, PortID, Region, RegionID}};
 
 
 
@@ -9,8 +9,8 @@ use crate::{point::{Location, Point2D}, math_utils::{get_random, pick_random}, p
 /** - The total population must be able to be extracted from the start region */
 /**     - For example, you cannot transport 2 infected individuals from a population of 50 healthy ones */
 /** - Use None to communicate that no jobs could be created, e.g. region is uninhabited */
-pub trait TransportAllocator<P = Population, T = Point2D> where T: Location, P: PopulationType {
-    fn calculate_transport<'a>(&self, start_port: &Port<T>, start_region: &Region<P, T>, destination_port_choices: Vec<&Port<T>>) -> Option<Vec<TransportJob>>;
+pub trait TransportAllocator<P = Population> where P: PopulationType {
+    fn calculate_transport<'a>(&self, start_port: &Port, start_region: &Region<P>, destination_port_choices: Vec<&Port>) -> Option<Vec<TransportJob>>;
 }
 
 /// Randomly choose a port to travel to, and transport a random number of people up to the starting port's capacity
@@ -27,8 +27,8 @@ impl RandomTransportAllocator {
     }
 }
 
-impl<P: PopulationType, T: Location> TransportAllocator <P, T> for RandomTransportAllocator {
-    fn calculate_transport<'a>(&self, start_port: &Port<T>, start_region: &Region<P, T>, destination_port_choices: Vec<&Port<T>>) -> Option<Vec<TransportJob>> {
+impl<P: PopulationType> TransportAllocator <P> for RandomTransportAllocator {
+    fn calculate_transport<'a>(&self, start_port: &Port, start_region: &Region<P>, destination_port_choices: Vec<&Port>) -> Option<Vec<TransportJob>> {
         // only prepare a transport if random chance favors it
         if (get_random() as f32) < self.transport_probability {
             let random_dest = pick_random(destination_port_choices);
