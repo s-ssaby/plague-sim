@@ -4,7 +4,7 @@ use std::{fmt::{write, Display}, sync::atomic::AtomicU32};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{point::{Location, Point2D}, population_types::{population::Population, PopulationType}};
+use crate::{point::{Point2D}, population_types::{population::Population, PopulationType}};
 
 
 
@@ -30,7 +30,7 @@ impl Display for PortID {
 /** Represents a specific site of travel, such as an airport/seaport */
 /** Should only be constructed using an associated region */
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-pub struct Port<T = Point2D> where T: Location {
+pub struct Port {
     // maximum amount of transportation 
     pub capacity: u32,
     // whether port is operating or not
@@ -40,13 +40,13 @@ pub struct Port<T = Point2D> where T: Location {
     // ID of this port
     pub id: PortID,
     // Position of this port
-    pub pos: T
+    pub pos: Point2D
 }
 
-impl<T> Port<T> where T: Location {
+impl Port {
     /** Creates a new open port capable of transporting specified capacity */
     /** Users of Port must ensure that all Ports they create have unique IDs to avoid unwanted behavior */
-    fn new(id: PortID, region: RegionID, capacity: u32, pos: T) -> Self {
+    fn new(id: PortID, region: RegionID, capacity: u32, pos: Point2D) -> Self {
         Self {capacity, closed: RefCell::new(false), region, id, pos}
     }
 
@@ -88,14 +88,14 @@ impl Display for RegionID {
 // Invariants to be preserved
 // RegionID always matched RegionID of ports it contains
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Region<P = Population, T = Point2D> where T: Location, P: PopulationType {
+pub struct Region<P = Population> where P: PopulationType {
     id: RegionID,
     pub name: String,
     pub population: P,
-    ports: Vec<Port<T>>
+    ports: Vec<Port>
 }
 
-impl<P, T> Region <P, T> where T: Location, P: PopulationType {
+impl<P> Region <P> where P: PopulationType {
     /** Creates region of people with specified population*/
     pub fn new(name: String, initial_pop: P) -> Self {
         let id = RegionID::new();
@@ -106,12 +106,12 @@ impl<P, T> Region <P, T> where T: Location, P: PopulationType {
         self.id
     }
 
-    pub fn get_ports(&self) -> &[Port<T>] {
+    pub fn get_ports(&self) -> &[Port] {
         &self.ports
     }
 
     /** Adds port to Region and returns a copy */
-    pub fn add_port(&mut self, port_id: PortID, capacity: u32, pos: T) -> Port<T> {
+    pub fn add_port(&mut self, port_id: PortID, capacity: u32, pos: Point2D) -> Port {
         let port = Port::new(port_id, self.id, capacity, pos);
         let clone = port.clone();
         self.ports.push(port);
@@ -119,7 +119,7 @@ impl<P, T> Region <P, T> where T: Location, P: PopulationType {
     }  
 
     /** Retrieves reference to port if it exists in Region */
-    pub fn get_port(&self, id: PortID) -> Option<&Port<T>> {
+    pub fn get_port(&self, id: PortID) -> Option<&Port> {
         self.ports.iter().find(|port| port.id == id)
     }
 
