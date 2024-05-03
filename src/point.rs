@@ -13,7 +13,7 @@ impl Point2D {
         Self {x, y}
     }
 
-    fn distance(&self, second: &Self) -> f64 {
+    pub fn distance(&self, second: &Self) -> f64 {
         f64::sqrt((self.x - second.x)*(self.x - second.x) + (self.y - second.y)*(self.y - second.y))
     }
 }
