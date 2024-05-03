@@ -2,7 +2,7 @@
 
 pub mod region;
 pub mod transportation_graph;
-pub mod pathogen_types;
+pub mod pathogen;
 pub mod population_types;
 pub mod config;
 pub mod transportation_allocator;
