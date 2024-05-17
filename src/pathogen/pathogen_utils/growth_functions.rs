@@ -22,6 +22,6 @@ pub fn exponential_growth_rounded(init_pop: Population, rate: f64) -> Population
 /// Grows infected population by a constant amount
 /// Also decreased healthy population by same amount infected population was increased
 /// If unable to increase infected population by requested amount, increase as much as possible
-pub fn linear_growth(init_pop: Population, amount: u32) -> Population {
+pub fn linear_growth(init_pop: Population, amount: f64) -> Population {
     todo!()
 }
