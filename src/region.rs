@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use std::{fmt::{write, Display}, sync::atomic::AtomicU32};
+use std::{cell::Cell, fmt::{write, Display}, sync::atomic::AtomicU32};
 
 use serde::{Deserialize, Serialize};
 
@@ -34,7 +34,7 @@ pub struct Port {
     // maximum amount of transportation 
     pub capacity: u32,
     // whether port is operating or not
-    closed: RefCell<bool>,
+    closed: Cell<bool>,
     // ID of region this port is in
     pub region: RegionID,
     // ID of this port
@@ -47,7 +47,7 @@ impl Port {
     /** Creates a new open port capable of transporting specified capacity */
     /** Users of Port must ensure that all Ports they create have unique IDs to avoid unwanted behavior */
     fn new(id: PortID, region: RegionID, capacity: u32, pos: Point2D) -> Self {
-        Self {capacity, closed: RefCell::new(false), region, id, pos}
+        Self {capacity, closed: Cell::new(false), region, id, pos}
     }
 
     pub fn close_port(&self) {
@@ -55,7 +55,7 @@ impl Port {
     }
 
     pub fn is_closed(&self) -> bool {
-        self.closed.borrow().to_owned()
+        self.closed.get()
     }
 
     pub fn get_capacity(&self) -> u32 {
