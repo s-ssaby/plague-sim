@@ -36,7 +36,7 @@ pub struct Port {
     // whether port is operating or not
     closed: Cell<bool>,
     // ID of region this port is in
-    pub region: RegionID,
+    region: RegionID,
     // ID of this port
     pub id: PortID,
     // Position of this port
@@ -60,6 +60,10 @@ impl Port {
 
     pub fn get_capacity(&self) -> u32 {
         self.capacity
+    }
+
+    pub fn region(&self) -> RegionID {
+        self.region
     }
 }
 
