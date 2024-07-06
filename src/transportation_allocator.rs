@@ -59,7 +59,7 @@ impl<P: PopulationType> TransportAllocator <P> for RandomTransportAllocator {
                     format!("Unable to remove {} recovered from {} recovered", transported_population.recovered, start_region.population.population().recovered));
                     // TODO! Change time calculation later to allow changes in speed
                     let distance = start_port.pos.distance(&dest.pos) as u32;
-                    Some(vec![TransportJob {start_region: start_region.id(), start_port: start_port.id, end_region: dest.region, end_port: dest.id, population: transported_population, time: distance}])
+                    Some(vec![TransportJob {start_region: start_region.id(), start_port: start_port.id, end_region: dest.region(), end_port: dest.id, population: transported_population, time: distance}])
                 },
                 None => None,
             }

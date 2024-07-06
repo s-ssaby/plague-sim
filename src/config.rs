@@ -58,12 +58,12 @@ mod tests {
         let europe_id = regions[1].id();
         let china_id = regions[2].id();
 
-        assert_eq!(graph.get_port(PortID(0)).unwrap().region, us_id);
-        assert_eq!(graph.get_port(PortID(1)).unwrap().region, us_id);
-        assert_eq!(graph.get_port(PortID(2)).unwrap().region, europe_id);
-        assert_eq!(graph.get_port(PortID(3)).unwrap().region, europe_id);
-        assert_eq!(graph.get_port(PortID(4)).unwrap().region, china_id);
-        assert_eq!(graph.get_port(PortID(5)).unwrap().region, china_id);
+        assert_eq!(graph.get_port(PortID(0)).unwrap().region(), us_id);
+        assert_eq!(graph.get_port(PortID(1)).unwrap().region(), us_id);
+        assert_eq!(graph.get_port(PortID(2)).unwrap().region(), europe_id);
+        assert_eq!(graph.get_port(PortID(3)).unwrap().region(), europe_id);
+        assert_eq!(graph.get_port(PortID(4)).unwrap().region(), china_id);
+        assert_eq!(graph.get_port(PortID(5)).unwrap().region(), china_id);
 
         // all proper connections here?
         assert_eq!(graph.get_dest_ports(PortID(0)).unwrap(), vec![graph.get_port(PortID(1)).unwrap()]);
