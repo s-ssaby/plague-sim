@@ -27,6 +27,12 @@ impl Display for PortID {
     }
 }
 
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
+pub enum PortStatus {
+    #[default] Open,
+    Closed
+}
+
 /** Represents a specific site of travel, such as an airport/seaport */
 /** Should only be constructed using an associated region */
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
