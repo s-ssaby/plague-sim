@@ -68,10 +68,6 @@ impl Port {
         self.status.replace(status);
     }
 
-    pub fn get_capacity(&self) -> u32 {
-        self.capacity
-    }
-
     pub fn region(&self) -> RegionID {
         self.region
     }
