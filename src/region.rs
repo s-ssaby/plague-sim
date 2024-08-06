@@ -61,11 +61,11 @@ impl Port {
     }
 
     pub fn port_status(&self) -> PortStatus {
-        self.port_status()
+        self.status.get()
     }
 
     pub fn set_status(&self, status: PortStatus) {
-        self.status = status.into()
+        self.status.replace(status);
     }
 
     pub fn get_capacity(&self) -> u32 {

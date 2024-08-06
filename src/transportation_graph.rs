@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{point::{Point2D}, region::{Port, PortID}};
+use crate::{point::Point2D, region::{Port, PortID, PortStatus}};
 
 
 
@@ -97,7 +97,7 @@ impl PortGraph {
             let dests = self.get_dest_ports(id).unwrap();
             let mut open_dests: Vec<&Port> = vec![];
             for dest in &dests {
-                if !dest.is_closed() {
+                if dest.port_status() == PortStatus::Open {
                     open_dests.push(dest);
                 }
             }
